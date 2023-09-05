@@ -2,7 +2,10 @@ package proton
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"log"
+	"strings"
 
 	"github.com/ProtonMail/gopenpgp/v2/crypto"
 )
@@ -93,7 +96,7 @@ func (l Link) GetKeyRing(parentNodeKR, addrKR *crypto.KeyRing) (*crypto.KeyRing,
 	return crypto.NewKeyRing(unlockedKey)
 }
 
-func (l Link) GetHashKey(nodeKR *crypto.KeyRing) ([]byte, error) {
+func (l Link) GetHashKey(parentNodeKey *crypto.KeyRing) ([]byte, error) {
 	if l.Type != LinkTypeFolder {
 		return nil, errors.New("link is not a folder")
 	}
@@ -103,9 +106,19 @@ func (l Link) GetHashKey(nodeKR *crypto.KeyRing) ([]byte, error) {
 		return nil, err
 	}
 
-	dec, err := nodeKR.Decrypt(enc, nodeKR, crypto.GetUnixTime())
+	dec, err := parentNodeKey.Decrypt(enc, parentNodeKey, crypto.GetUnixTime())
 	if err != nil {
-		return nil, err
+		// might have the case where signature is missing, so we will try again without verifying the signature
+		if strings.Contains(err.Error(), "Missing signature") {
+			log.Println("GetHashKey has signature verification error. Trying to decrypt again without verifying the signature")
+			dec, err = parentNodeKey.Decrypt(enc, nil, crypto.GetUnixTime())
+			if err != nil {
+				return nil, err
+			}
+			log.Println("GetHashKey without signature verification has completed successfully")
+		} else {
+			return nil, err
+		}
 	}
 
 	return dec.GetBinary(), nil
@@ -162,8 +175,35 @@ type RevisionMetadata struct {
 	ManifestSignature string        // Signature of the revision manifest, signed with user's address key of the share.
 	SignatureEmail    string        // Email of the user that signed the revision.
 	State             RevisionState // State of revision
+	XAttr             string        // modification time and size from the file system
 	Thumbnail         Bool          // Whether the revision has a thumbnail
 	ThumbnailHash     string        // Hash of the thumbnail
+}
+
+func (revisionMetadata *RevisionMetadata) GetDecXAttrString(addrKR, nodeKR *crypto.KeyRing) (*RevisionXAttrCommon, error) {
+	if revisionMetadata.XAttr == "" {
+		return nil, nil
+	}
+
+	// decrypt the modification time and size
+	XAttrMsg, err := crypto.NewPGPMessageFromArmored(revisionMetadata.XAttr)
+	if err != nil {
+		return nil, err
+	}
+
+	decXAttr, err := nodeKR.Decrypt(XAttrMsg, addrKR, crypto.GetUnixTime())
+	if err != nil {
+		return nil, err
+	}
+
+	var data RevisionXAttr
+	err = json.Unmarshal(decXAttr.Data, &data)
+	if err != nil {
+		// TODO: if Unmarshal fails, maybe it's because the file system is missing the field?
+		return nil, err
+	}
+
+	return &data.Common, nil
 }
 
 // Revisions are only for files, they represent “versions” of files.
@@ -174,6 +214,32 @@ type Revision struct {
 	Blocks []Block
 }
 
+func (revision *Revision) GetDecXAttrString(addrKR, nodeKR *crypto.KeyRing) (*RevisionXAttrCommon, error) {
+	if revision.XAttr == "" {
+		return nil, nil
+	}
+
+	// decrypt the modification time and size
+	XAttrMsg, err := crypto.NewPGPMessageFromArmored(revision.XAttr)
+	if err != nil {
+		return nil, err
+	}
+
+	decXAttr, err := nodeKR.Decrypt(XAttrMsg, addrKR, crypto.GetUnixTime())
+	if err != nil {
+		return nil, err
+	}
+
+	var data RevisionXAttr
+	err = json.Unmarshal(decXAttr.Data, &data)
+	if err != nil {
+		// TODO: if Unmarshal fails, maybe it's because the file system is missing the field?
+		return nil, err
+	}
+
+	return &data.Common, nil
+}
+
 type RevisionState int
 
 const (
@@ -182,3 +248,17 @@ const (
 	RevisionStateObsolete
 	RevisionStateDeleted
 )
+
+type CheckAvailableHashesReq struct {
+	Hashes []string
+}
+
+type PendingHashData struct {
+	Hash       []string
+	RevisionID []string
+	LinkID     []string
+}
+type CheckAvailableHashesRes struct {
+	AvailableHashes   []string
+	PendingHashesData []PendingHashData
+}
