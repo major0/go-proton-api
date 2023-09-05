@@ -1,4 +1,4 @@
-module github.com/ProtonMail/go-proton-api
+module github.com/henrybear327/go-proton-api
 
 go 1.21
 
@@ -9,13 +9,13 @@ require (
 	github.com/ProtonMail/go-srp v0.0.7
 	github.com/ProtonMail/gopenpgp/v2 v2.7.4-proton
 	github.com/PuerkitoBio/goquery v1.8.1
-	github.com/bradenaw/juniper v0.12.0
+	github.com/bradenaw/juniper v0.13.1
 	github.com/emersion/go-message v0.16.0
-	github.com/emersion/go-vcard v0.0.0-20230331202150-f3d26859ccd3
+	github.com/emersion/go-vcard v0.0.0-20230626131229-38c18b295bbd
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
-	github.com/sirupsen/logrus v1.9.2
+	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.3
 	github.com/urfave/cli/v2 v2.24.4
 	gitlab.com/c0b/go-ordered-json v0.0.0-20201030195603-febf46534d5a
