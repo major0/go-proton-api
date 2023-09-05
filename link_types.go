@@ -34,6 +34,7 @@ type Link struct {
 	NodeKey                 string // The private NodeKey, used to decrypt any file/folder content.
 	NodePassphrase          string // The passphrase used to unlock the NodeKey, encrypted by the owning Link/Share keyring.
 	NodePassphraseSignature string
+	SignatureEmail          string // Signature email for the NodePassphraseSignature
 
 	FileProperties   *FileProperties
 	FolderProperties *FolderProperties
