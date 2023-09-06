@@ -4,8 +4,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"log"
-	"strings"
 
 	"github.com/ProtonMail/gopenpgp/v2/crypto"
 )
@@ -20,12 +18,13 @@ type Link struct {
 	LinkID       string // Encrypted file/folder ID
 	ParentLinkID string // Encrypted parent folder ID (LinkID). Root link has null ParentLinkID.
 
-	Type     LinkType
-	Name     string // Encrypted file name
-	Hash     string // HMAC of name encrypted with parent hash key
-	Size     int64
-	State    LinkState
-	MIMEType string
+	Type               LinkType
+	Name               string // Encrypted file name
+	NameSignatureEmail string // Signature email for link name
+	Hash               string // HMAC of name encrypted with parent hash key
+	Size               int64
+	State              LinkState
+	MIMEType           string
 
 	CreateTime     int64 // Link creation time
 	ModifyTime     int64 // Link modification time (on API, real modify date is stored in XAttr)
@@ -97,7 +96,7 @@ func (l Link) GetKeyRing(parentNodeKR, addrKR *crypto.KeyRing) (*crypto.KeyRing,
 	return crypto.NewKeyRing(unlockedKey)
 }
 
-func (l Link) GetHashKey(parentNodeKey *crypto.KeyRing) ([]byte, error) {
+func (l Link) GetHashKey(parentNodeKey, addrKRs *crypto.KeyRing) ([]byte, error) {
 	if l.Type != LinkTypeFolder {
 		return nil, errors.New("link is not a folder")
 	}
@@ -107,19 +106,9 @@ func (l Link) GetHashKey(parentNodeKey *crypto.KeyRing) ([]byte, error) {
 		return nil, err
 	}
 
-	dec, err := parentNodeKey.Decrypt(enc, parentNodeKey, crypto.GetUnixTime())
+	dec, err := parentNodeKey.Decrypt(enc, addrKRs, crypto.GetUnixTime())
 	if err != nil {
-		// might have the case where signature is missing, so we will try again without verifying the signature
-		if strings.Contains(err.Error(), "Missing signature") {
-			log.Println("GetHashKey has signature verification error. Trying to decrypt again without verifying the signature")
-			dec, err = parentNodeKey.Decrypt(enc, nil, crypto.GetUnixTime())
-			if err != nil {
-				return nil, err
-			}
-			log.Println("GetHashKey without signature verification has completed successfully")
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 
 	return dec.GetBinary(), nil
