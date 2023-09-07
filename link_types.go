@@ -106,9 +106,18 @@ func (l Link) GetHashKey(parentNodeKey, addrKRs *crypto.KeyRing) ([]byte, error)
 		return nil, err
 	}
 
-	dec, err := parentNodeKey.Decrypt(enc, addrKRs, crypto.GetUnixTime())
-	if err != nil {
-		return nil, err
+	_, ok := enc.GetSignatureKeyIDs()
+	var dec *crypto.PlainMessage
+	if ok {
+		dec, err = parentNodeKey.Decrypt(enc, addrKRs, crypto.GetUnixTime())
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		dec, err = parentNodeKey.Decrypt(enc, nil, 0)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return dec.GetBinary(), nil
