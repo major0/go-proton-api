@@ -2,6 +2,7 @@ package proton
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 
 	"github.com/ProtonMail/gopenpgp/v2/crypto"
@@ -171,8 +172,35 @@ type RevisionMetadata struct {
 	ManifestSignature string        // Signature of the revision manifest, signed with user's address key of the share.
 	SignatureEmail    string        // Email of the user that signed the revision.
 	State             RevisionState // State of revision
+	XAttr             string        // modification time and size from the file system
 	Thumbnail         Bool          // Whether the revision has a thumbnail
 	ThumbnailHash     string        // Hash of the thumbnail
+}
+
+func (revisionMetadata *RevisionMetadata) GetDecXAttrString(addrKR, nodeKR *crypto.KeyRing) (*RevisionXAttrCommon, error) {
+	if revisionMetadata.XAttr == "" {
+		return nil, nil
+	}
+
+	// decrypt the modification time and size
+	XAttrMsg, err := crypto.NewPGPMessageFromArmored(revisionMetadata.XAttr)
+	if err != nil {
+		return nil, err
+	}
+
+	decXAttr, err := nodeKR.Decrypt(XAttrMsg, addrKR, crypto.GetUnixTime())
+	if err != nil {
+		return nil, err
+	}
+
+	var data RevisionXAttr
+	err = json.Unmarshal(decXAttr.Data, &data)
+	if err != nil {
+		// TODO: if Unmarshal fails, maybe it's because the file system is missing the field?
+		return nil, err
+	}
+
+	return &data.Common, nil
 }
 
 // Revisions are only for files, they represent “versions” of files.
@@ -181,6 +209,32 @@ type Revision struct {
 	RevisionMetadata
 
 	Blocks []Block
+}
+
+func (revision *Revision) GetDecXAttrString(addrKR, nodeKR *crypto.KeyRing) (*RevisionXAttrCommon, error) {
+	if revision.XAttr == "" {
+		return nil, nil
+	}
+
+	// decrypt the modification time and size
+	XAttrMsg, err := crypto.NewPGPMessageFromArmored(revision.XAttr)
+	if err != nil {
+		return nil, err
+	}
+
+	decXAttr, err := nodeKR.Decrypt(XAttrMsg, addrKR, crypto.GetUnixTime())
+	if err != nil {
+		return nil, err
+	}
+
+	var data RevisionXAttr
+	err = json.Unmarshal(decXAttr.Data, &data)
+	if err != nil {
+		// TODO: if Unmarshal fails, maybe it's because the file system is missing the field?
+		return nil, err
+	}
+
+	return &data.Common, nil
 }
 
 type RevisionState int
