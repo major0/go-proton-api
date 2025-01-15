@@ -36,6 +36,38 @@ func GetNameHash(name string, hashKey []byte) (string, error) {
 	return hex.EncodeToString(mac.Sum(nil)), nil
 }
 
+type MoveLinkReq struct {
+	ParentLinkID string
+
+	Name                    string // Encrypted File Name
+	OriginalHash            string // Old Encrypted File Name Hash
+	Hash                    string // Encrypted File Name Hash by using parent's NodeHashKey
+	NodePassphrase          string // The passphrase used to unlock the NodeKey, encrypted by the owning Link/Share keyring.
+	NodePassphraseSignature string // The signature of the NodePassphrase
+
+	SignatureAddress string // Signature email address used to sign passphrase and name
+}
+
+func (moveLinkReq *MoveLinkReq) SetName(name string, addrKR, nodeKR *crypto.KeyRing) error {
+	encNameString, err := getEncryptedName(name, addrKR, nodeKR)
+	if err != nil {
+		return err
+	}
+
+	moveLinkReq.Name = encNameString
+	return nil
+}
+
+func (moveLinkReq *MoveLinkReq) SetHash(name string, hashKey []byte) error {
+	nameHash, err := GetNameHash(name, hashKey)
+	if err != nil {
+		return err
+	}
+
+	moveLinkReq.Hash = nameHash
+	return nil
+}
+
 type CreateFileReq struct {
 	ParentLinkID string
 
