@@ -149,6 +149,9 @@ func (c *Client) doRes(ctx context.Context, fn func(*resty.Request) (*resty.Resp
 				return nil, fmt.Errorf("failed to retry request: %w", err)
 			}
 		}
+
+		// Attempt to continue with what we have
+		err = nil
 	}
 
 	return res, err
