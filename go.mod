@@ -69,3 +69,8 @@ require (
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace (
+	github.com/ProtonMail/go-crypto => github.com/ProtonMail/go-crypto v1.1.5-proton
+	github.com/ProtonMail/gopenpgp/v2 => github.com/ProtonMail/gopenpgp/v2 v2-proton
+)
