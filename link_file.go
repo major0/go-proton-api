@@ -100,3 +100,24 @@ func (c *Client) CreateRevisionFrom(ctx context.Context, shareID, linkID string,
 func (c *Client) CreateRevision(ctx context.Context, shareID, linkID string) (CreateRevisionRes, error) {
 	return c.CreateRevisionFrom(ctx, shareID, linkID, CreateRevisionReq{})
 }
+
+// VerificationData holds the server-provided verification code and
+// content key packet for block upload verification.
+type VerificationData struct {
+	VerificationCode string
+	ContentKeyPacket string
+}
+
+// GetVerificationData fetches the verification code for a revision.
+// The verification code is used to compute per-block verification tokens.
+func (c *Client) GetVerificationData(ctx context.Context, shareID, linkID, revisionID string) (VerificationData, error) {
+	var res VerificationData
+
+	if err := c.do(ctx, func(r *resty.Request) (*resty.Response, error) {
+		return r.SetResult(&res).Get("/drive/shares/" + shareID + "/links/" + linkID + "/revisions/" + revisionID + "/verification")
+	}); err != nil {
+		return VerificationData{}, err
+	}
+
+	return res, nil
+}
