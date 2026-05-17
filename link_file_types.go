@@ -155,6 +155,7 @@ type RevisionXAttrCommon struct {
 	Size             int64
 	BlockSizes       []int64
 	Digests          map[string]string
+	Mode             uint32 `json:"Mode,omitempty"`
 }
 
 type RevisionXAttr struct {
