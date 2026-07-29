@@ -170,7 +170,10 @@ type RevisionMetadata struct {
 	ThumbnailHash     string        // Hash of the thumbnail
 }
 
-func (revisionMetadata *RevisionMetadata) GetDecXAttrString(addrKR, nodeKR *crypto.KeyRing) (*RevisionXAttrCommon, error) {
+// GetDecXAttrString decrypts and returns the full RevisionXAttr, including
+// Extra (unmodeled sections such as the POSIX section). Returns nil when no
+// XAttr is present.
+func (revisionMetadata *RevisionMetadata) GetDecXAttrString(addrKR, nodeKR *crypto.KeyRing) (*RevisionXAttr, error) {
 	if revisionMetadata.XAttr == "" {
 		return nil, nil
 	}
@@ -193,7 +196,7 @@ func (revisionMetadata *RevisionMetadata) GetDecXAttrString(addrKR, nodeKR *cryp
 		return nil, err
 	}
 
-	return &data.Common, nil
+	return &data, nil
 }
 
 // Revisions are only for files, they represent “versions” of files.
@@ -204,7 +207,10 @@ type Revision struct {
 	Blocks []Block
 }
 
-func (revision *Revision) GetDecXAttrString(addrKR, nodeKR *crypto.KeyRing) (*RevisionXAttrCommon, error) {
+// GetDecXAttrString decrypts and returns the full RevisionXAttr, including
+// Extra (unmodeled sections such as the POSIX section). Returns nil when no
+// XAttr is present.
+func (revision *Revision) GetDecXAttrString(addrKR, nodeKR *crypto.KeyRing) (*RevisionXAttr, error) {
 	if revision.XAttr == "" {
 		return nil, nil
 	}
@@ -227,7 +233,7 @@ func (revision *Revision) GetDecXAttrString(addrKR, nodeKR *crypto.KeyRing) (*Re
 		return nil, err
 	}
 
-	return &data.Common, nil
+	return &data, nil
 }
 
 type RevisionState int
