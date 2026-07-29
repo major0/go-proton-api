@@ -20,9 +20,10 @@ func TestRetryRefreshFailed(t *testing.T) {
 		want bool
 	}{
 		{name: "no error", res: refreshRes(refreshURL, http.StatusInternalServerError), err: nil, want: false},
-		{name: "refresh 500", res: refreshRes(refreshURL, http.StatusInternalServerError), err: errors.New("boom"), want: false},
-		{name: "refresh 400", res: refreshRes(refreshURL, http.StatusBadRequest), err: errors.New("deauth"), want: true},
-		{name: "refresh 422", res: refreshRes(refreshURL, http.StatusUnprocessableEntity), err: errors.New("error"), want: true},
+		{name: "refresh 500", res: refreshRes(refreshURL, http.StatusInternalServerError), err: errors.New("boom"), want: true},
+		{name: "refresh 400", res: refreshRes(refreshURL, http.StatusBadRequest), err: errors.New("deauth"), want: false},
+		{name: "refresh 422", res: refreshRes(refreshURL, http.StatusUnprocessableEntity), err: errors.New("error"), want: false},
+		{name: "refresh no response", res: &resty.Response{Request: &resty.Request{URL: refreshURL}}, err: errors.New("dial"), want: true},
 		{name: "refresh 200 hook error", res: refreshRes(refreshURL, http.StatusOK), err: errors.New("update time"), want: false},
 		{name: "other 500", res: refreshRes(otherURL, http.StatusInternalServerError), err: errors.New("boom"), want: false},
 	}
