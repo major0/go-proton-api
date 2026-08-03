@@ -81,4 +81,3 @@ case $1 in
     "update") update_dependecies;;
     *) error "One of actions needed: check update" ;;
 esac
-
