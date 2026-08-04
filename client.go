@@ -10,6 +10,8 @@ import (
 	"sync/atomic"
 
 	"github.com/go-resty/resty/v2"
+
+	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client"
 )
 
 // clientID is a unique identifier for a client.
@@ -28,6 +30,9 @@ type Client struct {
 	// clientID is this client's unique ID.
 	clientID uint64
 
+	// gen is the generated Drive API client.
+	gen *driveapi.ClientWithResponses
+
 	uid      string
 	acc      string
 	ref      string
@@ -45,6 +50,15 @@ func newClient(m *Manager, uid string) *Client {
 		m:        m,
 		uid:      uid,
 		clientID: atomic.AddUint64(&clientID, 1),
+	}
+
+	// Initialize the generated Drive API client using Resty's underlying HTTP client.
+	genClient, err := driveapi.NewClientWithResponses(
+		m.rc.BaseURL,
+		driveapi.WithHTTPClient(m.rc.GetClient()),
+	)
+	if err == nil {
+		c.gen = genClient
 	}
 
 	return c

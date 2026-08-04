@@ -1,0 +1,8 @@
+package: driveapi
+output: internal/openapi-client/client.gen.go
+generate:
+  client: true
+  models: false
+  embedded-spec: false
+output-options:
+  skip-prune: true
