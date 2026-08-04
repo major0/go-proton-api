@@ -22,6 +22,18 @@ type CreateFileRes struct {
 	RevisionID string // Encrypted Revision ID
 }
 
+// CreateRevisionReq holds optional parameters for creating a new draft revision.
+type CreateRevisionReq struct {
+	// CurrentRevisionID is the active revision to inherit dirty blocks from (COW).
+	// Optional — omit for a fresh upload.
+	CurrentRevisionID string
+}
+
+// CreateRevisionRes is the response from creating a draft revision.
+type CreateRevisionRes struct {
+	ID string // Revision ID
+}
+
 type UpdateRevisionReq struct {
 	BlockList         []BlockToken
 	State             RevisionState
@@ -32,4 +44,10 @@ type UpdateRevisionReq struct {
 type BlockToken struct {
 	Index int
 	Token string
+}
+
+// RevisionVerification holds the verification data for a revision, used to verify block integrity.
+type RevisionVerification struct {
+	VerificationCode string
+	ContentKeyPacket string
 }
