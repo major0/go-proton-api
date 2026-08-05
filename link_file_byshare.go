@@ -399,6 +399,62 @@ func (c *Client) GetRevisionVerificationByVolume(ctx context.Context, volumeID, 
 	return parsed, nil
 }
 
+// ListRevisionsByShare lists revisions via the v1 share-scoped endpoint.
+// Returns revision metadata without block details.
+func (c *Client) ListRevisionsByShare(ctx context.Context, shareID, linkID string) ([]RevisionMetadata, error) {
+	httpResp, err := c.gen.ListSharesFilesRevisions(ctx, shareID, linkID)
+	if err != nil {
+		return nil, fmt.Errorf("listing revisions by share: %w", err)
+	}
+	defer func() { _ = httpResp.Body.Close() }()
+
+	body, err := readBody(httpResp)
+	if err != nil {
+		return nil, fmt.Errorf("listing revisions by share: %w", err)
+	}
+
+	if httpResp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("listing revisions by share: %w", apiErrorFromGenResponse(httpResp, body))
+	}
+
+	var parsed struct {
+		Revisions []RevisionMetadata
+	}
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return nil, fmt.Errorf("listing revisions by share: parsing response: %w", err)
+	}
+
+	return parsed.Revisions, nil
+}
+
+// ListRevisionsByVolume lists revisions via the v2 volume-scoped endpoint.
+// Returns full revision objects including block details.
+func (c *Client) ListRevisionsByVolume(ctx context.Context, volumeID, linkID string) ([]Revision, error) {
+	httpResp, err := c.gen.ListV2VolumesFilesRevisions(ctx, volumeID, linkID)
+	if err != nil {
+		return nil, fmt.Errorf("listing revisions by volume: %w", err)
+	}
+	defer func() { _ = httpResp.Body.Close() }()
+
+	body, err := readBody(httpResp)
+	if err != nil {
+		return nil, fmt.Errorf("listing revisions by volume: %w", err)
+	}
+
+	if httpResp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("listing revisions by volume: %w", apiErrorFromGenResponse(httpResp, body))
+	}
+
+	var parsed struct {
+		Revisions []Revision
+	}
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return nil, fmt.Errorf("listing revisions by volume: parsing response: %w", err)
+	}
+
+	return parsed.Revisions, nil
+}
+
 // doGenGet makes a GET request through the generated client's underlying HTTP client.
 // This is used for endpoints that are not yet in the generated client.
 func (c *Client) doGenGet(ctx context.Context, path string) (*http.Response, error) {

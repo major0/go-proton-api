@@ -889,3 +889,188 @@ func TestGetRevisionVerificationByShare_Error(t *testing.T) {
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "Revision not found")
 }
+
+func TestListRevisionsByShare_Success(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodGet, r.Method)
+		require.Contains(t, r.URL.Path, "/drive/shares/test-share-id/files/link-id/revisions")
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		resp := map[string]any{
+			"Code": 1000,
+			"Revisions": []map[string]any{
+				{
+					"ID":                "rev-1",
+					"CreateTime":        1700000000,
+					"Size":              1024,
+					"ManifestSignature": "sig-1",
+					"SignatureEmail":    "user@proton.me",
+					"State":             1,
+					"Thumbnail":         0,
+					"ThumbnailHash":     "",
+				},
+				{
+					"ID":                "rev-2",
+					"CreateTime":        1700001000,
+					"Size":              2048,
+					"ManifestSignature": "sig-2",
+					"SignatureEmail":    "user@proton.me",
+					"State":             2,
+					"Thumbnail":         1,
+					"ThumbnailHash":     "thumb-hash",
+				},
+			},
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer ts.Close()
+
+	m := proton.New(
+		proton.WithHostURL(ts.URL),
+		proton.WithRetryCount(0),
+	)
+
+	c := m.NewClient("", "", "")
+	defer c.Close()
+
+	revisions, err := c.ListRevisionsByShare(context.Background(), "test-share-id", "link-id")
+	require.NoError(t, err)
+	require.Len(t, revisions, 2)
+
+	require.Equal(t, "rev-1", revisions[0].ID)
+	require.Equal(t, int64(1700000000), revisions[0].CreateTime)
+	require.Equal(t, int64(1024), revisions[0].Size)
+	require.Equal(t, "sig-1", revisions[0].ManifestSignature)
+	require.Equal(t, "user@proton.me", revisions[0].SignatureEmail)
+	require.Equal(t, proton.RevisionStateActive, revisions[0].State)
+
+	require.Equal(t, "rev-2", revisions[1].ID)
+	require.Equal(t, int64(2048), revisions[1].Size)
+	require.Equal(t, proton.RevisionStateObsolete, revisions[1].State)
+}
+
+func TestListRevisionsByVolume_Success(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodGet, r.Method)
+		require.Contains(t, r.URL.Path, "/drive/v2/volumes/test-volume-id/files/link-id/revisions")
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		resp := map[string]any{
+			"Code": 1000,
+			"Revisions": []map[string]any{
+				{
+					"ID":                "rev-v2-1",
+					"CreateTime":        1700000000,
+					"Size":              4096,
+					"ManifestSignature": "sig-v2-1",
+					"SignatureEmail":    "user@proton.me",
+					"State":             1,
+					"Thumbnail":         0,
+					"ThumbnailHash":     "",
+					"Blocks": []map[string]any{
+						{
+							"Index":          1,
+							"BareURL":        "https://block1.example.com",
+							"Token":          "token-1",
+							"Hash":           "hash-1",
+							"EncSignature":   "enc-sig-1",
+							"SignatureEmail": "user@proton.me",
+						},
+						{
+							"Index":          2,
+							"BareURL":        "https://block2.example.com",
+							"Token":          "token-2",
+							"Hash":           "hash-2",
+							"EncSignature":   "enc-sig-2",
+							"SignatureEmail": "user@proton.me",
+						},
+					},
+				},
+				{
+					"ID":                "rev-v2-2",
+					"CreateTime":        1700001000,
+					"Size":              8192,
+					"ManifestSignature": "sig-v2-2",
+					"SignatureEmail":    "user@proton.me",
+					"State":             2,
+					"Thumbnail":         0,
+					"ThumbnailHash":     "",
+					"Blocks": []map[string]any{
+						{
+							"Index":          1,
+							"BareURL":        "https://block3.example.com",
+							"Token":          "token-3",
+							"Hash":           "hash-3",
+							"EncSignature":   "enc-sig-3",
+							"SignatureEmail": "user@proton.me",
+						},
+					},
+				},
+			},
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer ts.Close()
+
+	m := proton.New(
+		proton.WithHostURL(ts.URL),
+		proton.WithRetryCount(0),
+	)
+
+	c := m.NewClient("", "", "")
+	defer c.Close()
+
+	revisions, err := c.ListRevisionsByVolume(context.Background(), "test-volume-id", "link-id")
+	require.NoError(t, err)
+	require.Len(t, revisions, 2)
+
+	// First revision has full block details.
+	require.Equal(t, "rev-v2-1", revisions[0].ID)
+	require.Equal(t, int64(4096), revisions[0].Size)
+	require.Equal(t, proton.RevisionStateActive, revisions[0].State)
+	require.Len(t, revisions[0].Blocks, 2)
+	require.Equal(t, 1, revisions[0].Blocks[0].Index)
+	require.Equal(t, "https://block1.example.com", revisions[0].Blocks[0].BareURL)
+	require.Equal(t, "token-1", revisions[0].Blocks[0].Token)
+	require.Equal(t, "hash-1", revisions[0].Blocks[0].Hash)
+	require.Equal(t, "enc-sig-1", revisions[0].Blocks[0].EncSignature)
+	require.Equal(t, 2, revisions[0].Blocks[1].Index)
+	require.Equal(t, "https://block2.example.com", revisions[0].Blocks[1].BareURL)
+
+	// Second revision has one block.
+	require.Equal(t, "rev-v2-2", revisions[1].ID)
+	require.Equal(t, int64(8192), revisions[1].Size)
+	require.Equal(t, proton.RevisionStateObsolete, revisions[1].State)
+	require.Len(t, revisions[1].Blocks, 1)
+	require.Equal(t, "https://block3.example.com", revisions[1].Blocks[0].BareURL)
+}
+
+func TestListRevisionsByShare_Error(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+
+		resp := map[string]any{
+			"Code":  2501,
+			"Error": "File not found",
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer ts.Close()
+
+	m := proton.New(
+		proton.WithHostURL(ts.URL),
+		proton.WithRetryCount(0),
+	)
+
+	c := m.NewClient("", "", "")
+	defer c.Close()
+
+	_, err := c.ListRevisionsByShare(context.Background(), "share-id", "link-id")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "File not found")
+}
