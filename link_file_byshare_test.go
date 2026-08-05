@@ -515,7 +515,7 @@ func TestUpdateRevisionByShare_Success(t *testing.T) {
 		},
 		State:             proton.RevisionStateActive,
 		ManifestSignature: "manifest-sig",
-		SignatureAddress:   "user@proton.me",
+		SignatureAddress:  "user@proton.me",
 	}
 
 	err := c.UpdateRevisionByShare(context.Background(), "test-share-id", "link-id", "rev-id", req)
@@ -559,7 +559,7 @@ func TestUpdateRevisionByVolume_Success(t *testing.T) {
 		},
 		State:             proton.RevisionStateActive,
 		ManifestSignature: "manifest-sig-v2",
-		SignatureAddress:   "user@proton.me",
+		SignatureAddress:  "user@proton.me",
 	}
 
 	err := c.UpdateRevisionByVolume(context.Background(), "test-volume-id", "link-id", "rev-id", req)
@@ -600,7 +600,7 @@ func TestUpdateRevisionByVolume_COW(t *testing.T) {
 		BlockList:         nil, // COW: no blocks, server uses inherited blocks.
 		State:             proton.RevisionStateActive,
 		ManifestSignature: "manifest-sig-cow",
-		SignatureAddress:   "user@proton.me",
+		SignatureAddress:  "user@proton.me",
 	}
 
 	err := c.UpdateRevisionByVolume(context.Background(), "test-volume-id", "link-id", "rev-id", req)
@@ -634,7 +634,7 @@ func TestUpdateRevisionByShare_Error(t *testing.T) {
 		},
 		State:             proton.RevisionStateActive,
 		ManifestSignature: "manifest-sig",
-		SignatureAddress:   "user@proton.me",
+		SignatureAddress:  "user@proton.me",
 	}
 
 	err := c.UpdateRevisionByShare(context.Background(), "share-id", "link-id", "rev-id", req)
