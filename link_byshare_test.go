@@ -529,3 +529,116 @@ func TestPostLinksByVolume_Error(t *testing.T) {
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "Link not found")
 }
+
+func TestCheckAvailableHashesByShare_Success(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPost, r.Method)
+		require.Contains(t, r.URL.Path, "/drive/shares/test-share-id/links/link-id-1/checkAvailableHashes")
+
+		var body map[string]any
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		require.Equal(t, "client-uid-123", body["ClientUID"])
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		resp := map[string]any{
+			"Code":            "1000",
+			"AvailableHashes": []string{"hash-a", "hash-b"},
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer ts.Close()
+
+	m := proton.New(
+		proton.WithHostURL(ts.URL),
+		proton.WithRetryCount(0),
+	)
+
+	c := m.NewClient("", "", "")
+	defer c.Close()
+
+	req := proton.CheckAvailableHashesByShareReq{
+		ClientUID: "client-uid-123",
+	}
+
+	res, err := c.CheckAvailableHashesByShare(context.Background(), "test-share-id", "link-id-1", req)
+	require.NoError(t, err)
+	require.Equal(t, []string{"hash-a", "hash-b"}, res.AvailableHashes)
+}
+
+func TestCheckAvailableHashesByVolume_Success(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPost, r.Method)
+		require.Contains(t, r.URL.Path, "/drive/v2/volumes/test-volume-id/links/link-id-2/checkAvailableHashes")
+
+		var body map[string]any
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+
+		// Verify Hashes field is in request body (the key v2 difference)
+		hashes, ok := body["Hashes"].([]any)
+		require.True(t, ok, "Hashes field must be present in v2 request body")
+		require.Len(t, hashes, 3)
+		require.Equal(t, "hash-1", hashes[0])
+		require.Equal(t, "hash-2", hashes[1])
+		require.Equal(t, "hash-3", hashes[2])
+		require.Equal(t, "client-uid-456", body["ClientUID"])
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		resp := map[string]any{
+			"Code":            "1000",
+			"AvailableHashes": []string{"hash-1", "hash-3"},
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer ts.Close()
+
+	m := proton.New(
+		proton.WithHostURL(ts.URL),
+		proton.WithRetryCount(0),
+	)
+
+	c := m.NewClient("", "", "")
+	defer c.Close()
+
+	req := proton.CheckAvailableHashesByVolumeReq{
+		Hashes:    []string{"hash-1", "hash-2", "hash-3"},
+		ClientUID: "client-uid-456",
+	}
+
+	res, err := c.CheckAvailableHashesByVolume(context.Background(), "test-volume-id", "link-id-2", req)
+	require.NoError(t, err)
+	require.Equal(t, []string{"hash-1", "hash-3"}, res.AvailableHashes)
+}
+
+func TestCheckAvailableHashesByShare_Error(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		resp := map[string]any{
+			"Code":  2500,
+			"Error": "Invalid link",
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer ts.Close()
+
+	m := proton.New(
+		proton.WithHostURL(ts.URL),
+		proton.WithRetryCount(0),
+	)
+
+	c := m.NewClient("", "", "")
+	defer c.Close()
+
+	req := proton.CheckAvailableHashesByShareReq{
+		ClientUID: "client-uid-789",
+	}
+
+	_, err := c.CheckAvailableHashesByShare(context.Background(), "share-id", "bad-link-id", req)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "Invalid link")
+}

@@ -266,3 +266,105 @@ func (c *Client) CreateDocumentByVolume(ctx context.Context, volumeID string, re
 		VolumeID:   derefString(doc.VolumeID),
 	}, nil
 }
+
+// CheckAvailableHashesByShareReq is the v1 request (ClientUID only).
+type CheckAvailableHashesByShareReq struct {
+	ClientUID string `json:"ClientUID,omitempty"`
+}
+
+// CheckAvailableHashesByVolumeReq is the v2 request (includes required Hashes field).
+type CheckAvailableHashesByVolumeReq struct {
+	Hashes    []string `json:"Hashes"`
+	ClientUID string   `json:"ClientUID,omitempty"`
+}
+
+// CheckAvailableHashesRes is the response for both v1 and v2.
+type CheckAvailableHashesRes struct {
+	AvailableHashes []string `json:"AvailableHashes"`
+}
+
+// CheckAvailableHashesByShare checks available hashes via the v1 share-scoped endpoint.
+func (c *Client) CheckAvailableHashesByShare(ctx context.Context, shareID, linkID string, req CheckAvailableHashesByShareReq) (CheckAvailableHashesRes, error) {
+	body, err := json.Marshal(req)
+	if err != nil {
+		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by share: marshaling request: %w", err)
+	}
+
+	resp, err := c.gen.CreateSharesLinksCheckavailablehashesWithBodyWithResponse(ctx, shareID, linkID, "application/json", bytes.NewReader(body))
+	if err != nil {
+		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by share: %w", err)
+	}
+
+	if resp.JSON200 == nil {
+		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by share: %w", apiErrorFromGenResponse(resp.HTTPResponse, resp.Body))
+	}
+
+	var hashes []string
+	if resp.JSON200.AvailableHashes != nil {
+		hashes = *resp.JSON200.AvailableHashes
+	}
+
+	return CheckAvailableHashesRes{AvailableHashes: hashes}, nil
+}
+
+// CheckAvailableHashesByVolume checks available hashes via the v2 volume-scoped endpoint.
+func (c *Client) CheckAvailableHashesByVolume(ctx context.Context, volumeID, linkID string, req CheckAvailableHashesByVolumeReq) (CheckAvailableHashesRes, error) {
+	body, err := json.Marshal(req)
+	if err != nil {
+		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by volume: marshaling request: %w", err)
+	}
+
+	resp, err := c.gen.CreateV2VolumesLinksCheckavailablehashesWithBodyWithResponse(ctx, volumeID, linkID, "application/json", bytes.NewReader(body))
+	if err != nil {
+		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by volume: %w", err)
+	}
+
+	if resp.JSON200 == nil {
+		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by volume: %w", apiErrorFromGenResponse(resp.HTTPResponse, resp.Body))
+	}
+
+	var hashes []string
+	if resp.JSON200.AvailableHashes != nil {
+		hashes = *resp.JSON200.AvailableHashes
+	}
+
+	return CheckAvailableHashesRes{AvailableHashes: hashes}, nil
+}
+
+// MoveByShare moves a link via the v1 share-scoped endpoint.
+func (c *Client) MoveByShare(ctx context.Context, shareID, linkID string, req MoveByShareReq) error {
+	body, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("moving by share: marshaling request: %w", err)
+	}
+
+	resp, err := c.gen.UpdateSharesLinksMoveWithBodyWithResponse(ctx, shareID, linkID, "application/json", bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("moving by share: %w", err)
+	}
+
+	if resp.HTTPResponse.StatusCode != 200 {
+		return fmt.Errorf("moving by share: %w", apiErrorFromGenResponse(resp.HTTPResponse, resp.Body))
+	}
+
+	return nil
+}
+
+// MoveByVolume moves a link via the v2 volume-scoped endpoint.
+func (c *Client) MoveByVolume(ctx context.Context, volumeID, linkID string, req MoveByVolumeReq) error {
+	body, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("moving by volume: marshaling request: %w", err)
+	}
+
+	resp, err := c.gen.UpdateV2VolumesLinksMoveWithBodyWithResponse(ctx, volumeID, linkID, "application/json", bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("moving by volume: %w", err)
+	}
+
+	if resp.HTTPResponse.StatusCode != 200 {
+		return fmt.Errorf("moving by volume: %w", apiErrorFromGenResponse(resp.HTTPResponse, resp.Body))
+	}
+
+	return nil
+}
