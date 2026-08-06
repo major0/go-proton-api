@@ -9,6 +9,70 @@ import (
 	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client"
 )
 
+// CreateFolderByShare creates a folder via the v1 share-scoped endpoint.
+func (c *Client) CreateFolderByShare(ctx context.Context, shareID string, req CreateFolderReq) (CreateFolderRes, error) {
+	body := driveapi.CreateSharesFoldersJSONRequestBody{
+		ParentLinkID:            &req.ParentLinkID,
+		Name:                    &req.Name,
+		Hash:                    &req.Hash,
+		NodeKey:                 &req.NodeKey,
+		NodeHashKey:             &req.NodeHashKey,
+		NodePassphrase:          &req.NodePassphrase,
+		NodePassphraseSignature: &req.NodePassphraseSignature,
+		SignatureAddress:        &req.SignatureAddress,
+	}
+
+	resp, err := c.gen.CreateSharesFoldersWithResponse(ctx, shareID, body)
+	if err != nil {
+		return CreateFolderRes{}, fmt.Errorf("creating folder by share: %w", err)
+	}
+
+	if resp.JSON200 == nil {
+		return CreateFolderRes{}, fmt.Errorf("creating folder by share: %w", apiErrorFromGenResponse(resp.HTTPResponse, resp.Body))
+	}
+
+	folder := resp.JSON200.Folder
+	if folder == nil {
+		return CreateFolderRes{}, fmt.Errorf("creating folder by share: response missing Folder field")
+	}
+
+	return CreateFolderRes{
+		ID: derefString(folder.ID),
+	}, nil
+}
+
+// CreateFolderByVolume creates a folder via the v2 volume-scoped endpoint.
+func (c *Client) CreateFolderByVolume(ctx context.Context, volumeID string, req CreateFolderByVolumeReq) (CreateFolderRes, error) {
+	body := driveapi.CreateV2VolumesFoldersJSONRequestBody{
+		ParentLinkID:            &req.ParentLinkID,
+		Name:                    &req.Name,
+		Hash:                    &req.Hash,
+		NodeKey:                 &req.NodeKey,
+		NodeHashKey:             &req.NodeHashKey,
+		NodePassphrase:          &req.NodePassphrase,
+		NodePassphraseSignature: &req.NodePassphraseSignature,
+		SignatureEmail:          &req.SignatureEmail,
+	}
+
+	resp, err := c.gen.CreateV2VolumesFoldersWithResponse(ctx, volumeID, body)
+	if err != nil {
+		return CreateFolderRes{}, fmt.Errorf("creating folder by volume: %w", err)
+	}
+
+	if resp.JSON200 == nil {
+		return CreateFolderRes{}, fmt.Errorf("creating folder by volume: %w", apiErrorFromGenResponse(resp.HTTPResponse, resp.Body))
+	}
+
+	folder := resp.JSON200.Folder
+	if folder == nil {
+		return CreateFolderRes{}, fmt.Errorf("creating folder by volume: response missing Folder field")
+	}
+
+	return CreateFolderRes{
+		ID: derefString(folder.ID),
+	}, nil
+}
+
 // ChildrenCursor is the cursor-paginated response from the v2 children endpoint.
 type ChildrenCursor struct {
 	LinkIDs  []string `json:"LinkIDs"`

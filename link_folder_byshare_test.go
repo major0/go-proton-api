@@ -11,6 +11,149 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestCreateFolderByShare_Success(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPost, r.Method)
+		require.Contains(t, r.URL.Path, "/drive/shares/test-share-id/folders")
+
+		var body map[string]any
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		require.Equal(t, "parent-link-id", body["ParentLinkID"])
+		require.Equal(t, "encrypted-folder-name", body["Name"])
+		require.Equal(t, "folder-hash", body["Hash"])
+		require.Equal(t, "node-key-data", body["NodeKey"])
+		require.Equal(t, "node-hash-key-data", body["NodeHashKey"])
+		require.Equal(t, "node-passphrase-data", body["NodePassphrase"])
+		require.Equal(t, "node-passphrase-sig", body["NodePassphraseSignature"])
+		require.Equal(t, "user@proton.me", body["SignatureAddress"])
+		// v1 must NOT have SignatureEmail
+		_, hasSignatureEmail := body["SignatureEmail"]
+		require.False(t, hasSignatureEmail)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		resp := map[string]any{
+			"Code": "1000",
+			"Folder": map[string]any{
+				"ID": "new-folder-link-id",
+			},
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer ts.Close()
+
+	m := proton.New(
+		proton.WithHostURL(ts.URL),
+		proton.WithRetryCount(0),
+	)
+
+	c := m.NewClient("", "", "")
+	defer c.Close()
+
+	req := proton.CreateFolderReq{
+		ParentLinkID:            "parent-link-id",
+		Name:                    "encrypted-folder-name",
+		Hash:                    "folder-hash",
+		NodeKey:                 "node-key-data",
+		NodeHashKey:             "node-hash-key-data",
+		NodePassphrase:          "node-passphrase-data",
+		NodePassphraseSignature: "node-passphrase-sig",
+		SignatureAddress:        "user@proton.me",
+	}
+
+	res, err := c.CreateFolderByShare(context.Background(), "test-share-id", req)
+	require.NoError(t, err)
+	require.Equal(t, "new-folder-link-id", res.ID)
+}
+
+func TestCreateFolderByVolume_Success(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.Equal(t, http.MethodPost, r.Method)
+		require.Contains(t, r.URL.Path, "/drive/v2/volumes/test-volume-id/folders")
+
+		var body map[string]any
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		require.Equal(t, "parent-link-id", body["ParentLinkID"])
+		require.Equal(t, "encrypted-folder-name-v2", body["Name"])
+		require.Equal(t, "folder-hash-v2", body["Hash"])
+		require.Equal(t, "node-key-v2", body["NodeKey"])
+		require.Equal(t, "node-hash-key-v2", body["NodeHashKey"])
+		require.Equal(t, "node-passphrase-v2", body["NodePassphrase"])
+		require.Equal(t, "node-passphrase-sig-v2", body["NodePassphraseSignature"])
+		// v2 uses SignatureEmail, NOT SignatureAddress
+		require.Equal(t, "user@proton.me", body["SignatureEmail"])
+		_, hasSignatureAddress := body["SignatureAddress"]
+		require.False(t, hasSignatureAddress)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		resp := map[string]any{
+			"Code": "1000",
+			"Folder": map[string]any{
+				"ID": "new-folder-link-id-v2",
+			},
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer ts.Close()
+
+	m := proton.New(
+		proton.WithHostURL(ts.URL),
+		proton.WithRetryCount(0),
+	)
+
+	c := m.NewClient("", "", "")
+	defer c.Close()
+
+	req := proton.CreateFolderByVolumeReq{
+		ParentLinkID:            "parent-link-id",
+		Name:                    "encrypted-folder-name-v2",
+		Hash:                    "folder-hash-v2",
+		NodeKey:                 "node-key-v2",
+		NodeHashKey:             "node-hash-key-v2",
+		NodePassphrase:          "node-passphrase-v2",
+		NodePassphraseSignature: "node-passphrase-sig-v2",
+		SignatureEmail:          "user@proton.me",
+	}
+
+	res, err := c.CreateFolderByVolume(context.Background(), "test-volume-id", req)
+	require.NoError(t, err)
+	require.Equal(t, "new-folder-link-id-v2", res.ID)
+}
+
+func TestCreateFolderByShare_Error(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		resp := map[string]any{
+			"Code":  2001,
+			"Error": "Invalid folder name",
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer ts.Close()
+
+	m := proton.New(
+		proton.WithHostURL(ts.URL),
+		proton.WithRetryCount(0),
+	)
+
+	c := m.NewClient("", "", "")
+	defer c.Close()
+
+	req := proton.CreateFolderReq{
+		ParentLinkID: "parent-link-id",
+		Name:         "bad-name",
+	}
+
+	_, err := c.CreateFolderByShare(context.Background(), "share-id", req)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "Invalid folder name")
+}
+
 func TestListChildrenByShare_Success(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(t, http.MethodGet, r.Method)
