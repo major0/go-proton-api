@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client"
+	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client/drive"
 )
 
 // CreateFolderByShare creates a folder via the v1 share-scoped endpoint.

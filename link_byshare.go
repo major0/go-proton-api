@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client"
+	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client/drive"
 )
 
 // PostLinksReq is the request body for batch-fetching link metadata.

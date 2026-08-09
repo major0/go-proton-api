@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client"
+	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client/drive"
 )
 
 // TrashCursor is the response from the v2 trash endpoint.

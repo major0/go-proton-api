@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
-	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client"
+	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client/drive"
 )
 
 // clientID is a unique identifier for a client.

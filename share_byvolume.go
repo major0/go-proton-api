@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client"
+	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client/drive"
 )
 
 // SharesCursor is the cursor-paginated response from the v2 shares endpoint.

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client"
+	driveapi "github.com/ProtonMail/go-proton-api/internal/openapi-client/drive"
 )
 
 // CreateFileByShare creates a file via the v1 share-scoped endpoint.
