@@ -542,11 +542,7 @@ type CoreCreateV4Auth2faJSONBody struct {
 type CoreCreateV4AuthCookiesJSONBody struct {
 	GrantType    *string `json:"GrantType,omitempty"`
 	Persistent   *string `json:"Persistent,omitempty"`
-	RedirectURI  *string `json:"RedirectURI,omitempty"`
-	RefreshToken *string `json:"RefreshToken,omitempty"`
 	ResponseType *string `json:"ResponseType,omitempty"`
-	State        *string `json:"State,omitempty"`
-	UID          *string `json:"UID,omitempty"`
 }
 
 // CoreCreateV4AuthInfoJSONBody defines parameters for CoreCreateV4AuthInfo.
@@ -750,7 +746,6 @@ type CoreCreateV4MembersAddressesAvailableJSONBody struct {
 type CoreUpdateV4MembersAddressesPermissionsOrganizationSwitchJSONBody struct {
 	// IDs List of encrypted addressIDs
 	IDs *[]string `json:"IDs,omitempty"`
-	Ids *string   `json:"Ids,omitempty"`
 
 	// Permissions Permissions bit to apply
 	Permissions *[]CoreUpdateV4MembersAddressesPermissionsOrganizationSwitchJSONBodyPermissions `json:"Permissions,omitempty"`
@@ -804,8 +799,8 @@ type CoreUpdateV4MembersPermissionsJSONBodyPermission int
 
 // CoreListV4MembersSearchParams defines parameters for CoreListV4MembersSearch.
 type CoreListV4MembersSearchParams struct {
-	Q        *string  `form:"q,omitempty" json:"q,omitempty"`
 	Limit    *float32 `form:"Limit,omitempty" json:"Limit,omitempty"`
+	Q        *string  `form:"Q,omitempty" json:"Q,omitempty"`
 	Keywords *string  `form:"keywords,omitempty" json:"keywords,omitempty"`
 }
 
@@ -821,8 +816,8 @@ type CoreGetV4MemberParams struct {
 
 // CoreListV4MembersAddressesParams defines parameters for CoreListV4MembersAddresses.
 type CoreListV4MembersAddressesParams struct {
-	PageSize *float32 `form:"PageSize,omitempty" json:"PageSize,omitempty"`
 	Page     *float32 `form:"Page,omitempty" json:"Page,omitempty"`
+	PageSize *float32 `form:"PageSize,omitempty" json:"PageSize,omitempty"`
 }
 
 // CoreCreateV4MembersAddressesJSONBody defines parameters for CoreCreateV4MembersAddresses.
