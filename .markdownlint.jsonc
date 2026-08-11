@@ -1,0 +1,8 @@
+{
+  // Allow longer lines (URLs, badges, tables)
+  "MD013": false,
+  // Allow inline HTML (badges, images with attributes)
+  "MD033": false,
+  // Allow multiple top-level headings (COPYING_NOTES has structured sections)
+  "MD025": false
+}

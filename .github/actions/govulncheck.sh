@@ -45,4 +45,4 @@ has_vulns(){
     fi
 }
 
-main
+main "$@"

@@ -32,4 +32,3 @@ jobs:
 
       - name: Run tests with race check
         run: go test -v -race ./...
-

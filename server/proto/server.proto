@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "github.com/ProtonMail/go-proton-api/server/proto";
 
-package proto; 
+package proto;
 
 //**********************************************************************************************************************
 //  Service Declaration
