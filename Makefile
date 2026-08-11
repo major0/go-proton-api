@@ -11,9 +11,9 @@
 SPEC := $(lastword $(sort $(wildcard ../open-proton-api.git/output/proton-full-api-*.json)))
 OAPI := github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.8.0
 
-.PHONY: generate all core
+.PHONY: generate all core contacts
 
-all: core
+all: core contacts
 
 # Generic target: make generate PACKAGE=foo TAGS="tag1,tag2"
 # Output: $(PACKAGE)/internal/generated/types.gen.go
@@ -29,3 +29,7 @@ generate:
 # Core: account, auth, oauth, core platform, permissions
 core:
 	$(MAKE) generate PACKAGE=core TAGS="account,auth,oauth,core,permissions,groups,members"
+
+# Contacts: contacts, emails
+contacts:
+	$(MAKE) generate PACKAGE=contacts TAGS="contacts,emails,other"
