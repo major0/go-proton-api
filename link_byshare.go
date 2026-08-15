@@ -28,7 +28,7 @@ func (c *Client) PostLinksByVolume(ctx context.Context, volumeID string, req Pos
 		return PostLinksRes{}, fmt.Errorf("post links by volume: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.CreateV2VolumesLinksWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveCreateV2VolumesLinksWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return PostLinksRes{}, fmt.Errorf("post links by volume: %w", err)
 	}
@@ -62,7 +62,7 @@ func (c *Client) RenameByShare(ctx context.Context, shareID, linkID string, req 
 		return fmt.Errorf("renaming by share: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.UpdateSharesLinksRenameWithBodyWithResponse(ctx, shareID, linkID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveUpdateSharesLinksRenameWithBodyWithResponse(ctx, shareID, linkID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("renaming by share: %w", err)
 	}
@@ -81,7 +81,7 @@ func (c *Client) RenameByVolume(ctx context.Context, volumeID, linkID string, re
 		return fmt.Errorf("renaming by volume: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.UpdateV2VolumesLinksRenameWithBodyWithResponse(ctx, volumeID, linkID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveUpdateV2VolumesLinksRenameWithBodyWithResponse(ctx, volumeID, linkID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("renaming by volume: %w", err)
 	}
@@ -106,7 +106,7 @@ func (c *Client) TrashDeleteMultipleByShare(ctx context.Context, shareID string,
 		return fmt.Errorf("trash delete multiple by share: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.CreateSharesTrashDeleteMultipleWithBodyWithResponse(ctx, shareID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveCreateSharesTrashDeleteMultipleWithBodyWithResponse(ctx, shareID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("trash delete multiple by share: %w", err)
 	}
@@ -131,7 +131,7 @@ func (c *Client) TrashDeleteMultipleByVolume(ctx context.Context, volumeID strin
 		return fmt.Errorf("trash delete multiple by volume: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.CreateV2VolumesTrashDeleteMultipleWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveCreateV2VolumesTrashDeleteMultipleWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("trash delete multiple by volume: %w", err)
 	}
@@ -156,7 +156,7 @@ func (c *Client) TrashRestoreMultipleByShare(ctx context.Context, shareID string
 		return fmt.Errorf("trash restore multiple by share: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.UpdateSharesTrashRestoreMultipleWithBodyWithResponse(ctx, shareID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveUpdateSharesTrashRestoreMultipleWithBodyWithResponse(ctx, shareID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("trash restore multiple by share: %w", err)
 	}
@@ -181,7 +181,7 @@ func (c *Client) TrashRestoreMultipleByVolume(ctx context.Context, volumeID stri
 		return fmt.Errorf("trash restore multiple by volume: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.UpdateV2VolumesTrashRestoreMultipleWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveUpdateV2VolumesTrashRestoreMultipleWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("trash restore multiple by volume: %w", err)
 	}
@@ -195,7 +195,7 @@ func (c *Client) TrashRestoreMultipleByVolume(ctx context.Context, volumeID stri
 
 // CreateDocumentByShare creates a document via the v1 share-scoped endpoint.
 func (c *Client) CreateDocumentByShare(ctx context.Context, shareID string, req CreateDocumentReq) (CreateDocumentRes, error) {
-	body := driveapi.CreateSharesDocumentsJSONRequestBody{
+	body := driveapi.DriveCreateSharesDocumentsJSONRequestBody{
 		ParentLinkID:              &req.ParentLinkID,
 		Name:                      &req.Name,
 		Hash:                      &req.Hash,
@@ -209,7 +209,7 @@ func (c *Client) CreateDocumentByShare(ctx context.Context, shareID string, req 
 		DocumentType:              &req.DocumentType,
 	}
 
-	resp, err := c.gen.CreateSharesDocumentsWithResponse(ctx, shareID, body)
+	resp, err := c.gen.DriveCreateSharesDocumentsWithResponse(ctx, shareID, body)
 	if err != nil {
 		return CreateDocumentRes{}, fmt.Errorf("creating document by share: %w", err)
 	}
@@ -232,7 +232,7 @@ func (c *Client) CreateDocumentByShare(ctx context.Context, shareID string, req 
 
 // CreateDocumentByVolume creates a document via the v2 volume-scoped endpoint.
 func (c *Client) CreateDocumentByVolume(ctx context.Context, volumeID string, req CreateDocumentReq) (CreateDocumentRes, error) {
-	body := driveapi.CreateV2VolumesDocumentsJSONRequestBody{
+	body := driveapi.DriveCreateV2VolumesDocumentsJSONRequestBody{
 		ParentLinkID:              &req.ParentLinkID,
 		Name:                      &req.Name,
 		Hash:                      &req.Hash,
@@ -246,7 +246,7 @@ func (c *Client) CreateDocumentByVolume(ctx context.Context, volumeID string, re
 		DocumentType:              &req.DocumentType,
 	}
 
-	resp, err := c.gen.CreateV2VolumesDocumentsWithResponse(ctx, volumeID, body)
+	resp, err := c.gen.DriveCreateV2VolumesDocumentsWithResponse(ctx, volumeID, body)
 	if err != nil {
 		return CreateDocumentRes{}, fmt.Errorf("creating document by volume: %w", err)
 	}
@@ -290,7 +290,7 @@ func (c *Client) CheckAvailableHashesByShare(ctx context.Context, shareID, linkI
 		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by share: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.CreateSharesLinksCheckavailablehashesWithBodyWithResponse(ctx, shareID, linkID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveCreateSharesLinksCheckavailablehashesWithBodyWithResponse(ctx, shareID, linkID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by share: %w", err)
 	}
@@ -314,7 +314,7 @@ func (c *Client) CheckAvailableHashesByVolume(ctx context.Context, volumeID, lin
 		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by volume: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.CreateV2VolumesLinksCheckavailablehashesWithBodyWithResponse(ctx, volumeID, linkID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveCreateV2VolumesLinksCheckavailablehashesWithBodyWithResponse(ctx, volumeID, linkID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return CheckAvailableHashesRes{}, fmt.Errorf("check available hashes by volume: %w", err)
 	}
@@ -338,7 +338,7 @@ func (c *Client) MoveByShare(ctx context.Context, shareID, linkID string, req Mo
 		return fmt.Errorf("moving by share: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.UpdateSharesLinksMoveWithBodyWithResponse(ctx, shareID, linkID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveUpdateSharesLinksMoveWithBodyWithResponse(ctx, shareID, linkID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("moving by share: %w", err)
 	}
@@ -357,7 +357,7 @@ func (c *Client) MoveByVolume(ctx context.Context, volumeID, linkID string, req 
 		return fmt.Errorf("moving by volume: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.UpdateV2VolumesLinksMoveWithBodyWithResponse(ctx, volumeID, linkID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveUpdateV2VolumesLinksMoveWithBodyWithResponse(ctx, volumeID, linkID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("moving by volume: %w", err)
 	}

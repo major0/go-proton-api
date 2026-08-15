@@ -9,7 +9,7 @@ import (
 // GetEventByShare fetches a single page of drive events via the v1 share-scoped endpoint.
 // The caller is responsible for pagination (looping while More == true).
 func (c *Client) GetEventByShare(ctx context.Context, shareID, eventID string) (ShareEvent, error) {
-	httpResp, err := c.gen.GetSharesEvent(ctx, shareID, eventID)
+	httpResp, err := c.gen.DriveGetSharesEvent(ctx, shareID, eventID)
 	if err != nil {
 		return ShareEvent{}, fmt.Errorf("getting event by share: %w", err)
 	}
@@ -35,7 +35,7 @@ func (c *Client) GetEventByShare(ctx context.Context, shareID, eventID string) (
 // GetEventByVolume fetches a single page of drive events via the v2 volume-scoped endpoint.
 // The caller is responsible for pagination (looping while More == true).
 func (c *Client) GetEventByVolume(ctx context.Context, volumeID, eventID string) (VolumeEvent, error) {
-	httpResp, err := c.gen.GetV2VolumesEvent(ctx, volumeID, eventID)
+	httpResp, err := c.gen.DriveGetV2VolumesEvent(ctx, volumeID, eventID)
 	if err != nil {
 		return VolumeEvent{}, fmt.Errorf("getting event by volume: %w", err)
 	}

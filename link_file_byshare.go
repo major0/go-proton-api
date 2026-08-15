@@ -13,7 +13,7 @@ import (
 
 // CreateFileByShare creates a file via the v1 share-scoped endpoint.
 func (c *Client) CreateFileByShare(ctx context.Context, shareID string, req CreateFileReq) (CreateFileRes, error) {
-	body := driveapi.CreateSharesFilesJSONRequestBody{
+	body := driveapi.DriveCreateSharesFilesJSONRequestBody{
 		ParentLinkID:              &req.ParentLinkID,
 		Name:                      &req.Name,
 		Hash:                      &req.Hash,
@@ -26,7 +26,7 @@ func (c *Client) CreateFileByShare(ctx context.Context, shareID string, req Crea
 		SignatureAddress:          &req.SignatureAddress,
 	}
 
-	resp, err := c.gen.CreateSharesFilesWithResponse(ctx, shareID, body)
+	resp, err := c.gen.DriveCreateSharesFilesWithResponse(ctx, shareID, body)
 	if err != nil {
 		return CreateFileRes{}, fmt.Errorf("creating file by share: %w", err)
 	}
@@ -48,7 +48,7 @@ func (c *Client) CreateFileByShare(ctx context.Context, shareID string, req Crea
 
 // CreateFileByVolume creates a file via the v2 volume-scoped endpoint.
 func (c *Client) CreateFileByVolume(ctx context.Context, volumeID string, req CreateFileReq) (CreateFileRes, error) {
-	body := driveapi.CreateV2VolumesFilesJSONRequestBody{
+	body := driveapi.DriveCreateV2VolumesFilesJSONRequestBody{
 		ParentLinkID:              &req.ParentLinkID,
 		Name:                      &req.Name,
 		Hash:                      &req.Hash,
@@ -61,7 +61,7 @@ func (c *Client) CreateFileByVolume(ctx context.Context, volumeID string, req Cr
 		SignatureAddress:          &req.SignatureAddress,
 	}
 
-	resp, err := c.gen.CreateV2VolumesFilesWithResponse(ctx, volumeID, body)
+	resp, err := c.gen.DriveCreateV2VolumesFilesWithResponse(ctx, volumeID, body)
 	if err != nil {
 		return CreateFileRes{}, fmt.Errorf("creating file by volume: %w", err)
 	}
@@ -91,12 +91,12 @@ func derefString(s *string) string {
 
 // CreateRevisionByShare creates a draft revision via the v1 share-scoped endpoint.
 func (c *Client) CreateRevisionByShare(ctx context.Context, shareID, linkID string, req CreateRevisionReq) (CreateRevisionRes, error) {
-	body := driveapi.CreateSharesFilesRevisionsJSONRequestBody{}
+	body := driveapi.DriveCreateSharesFilesRevisionsJSONRequestBody{}
 	if req.CurrentRevisionID != "" {
 		body.CurrentRevisionID = &req.CurrentRevisionID
 	}
 
-	resp, err := c.gen.CreateSharesFilesRevisionsWithResponse(ctx, shareID, linkID, body)
+	resp, err := c.gen.DriveCreateSharesFilesRevisionsWithResponse(ctx, shareID, linkID, body)
 	if err != nil {
 		return CreateRevisionRes{}, fmt.Errorf("creating revision by share: %w", err)
 	}
@@ -118,12 +118,12 @@ func (c *Client) CreateRevisionByShare(ctx context.Context, shareID, linkID stri
 // CreateRevisionByVolume creates a draft revision via the v2 volume-scoped endpoint.
 // ByVolume supports dirty-block-only writes via the same wire format.
 func (c *Client) CreateRevisionByVolume(ctx context.Context, volumeID, linkID string, req CreateRevisionReq) (CreateRevisionRes, error) {
-	body := driveapi.CreateV2VolumesFilesRevisionsJSONRequestBody{}
+	body := driveapi.DriveCreateV2VolumesFilesRevisionsJSONRequestBody{}
 	if req.CurrentRevisionID != "" {
 		body.CurrentRevisionID = &req.CurrentRevisionID
 	}
 
-	resp, err := c.gen.CreateV2VolumesFilesRevisionsWithResponse(ctx, volumeID, linkID, body)
+	resp, err := c.gen.DriveCreateV2VolumesFilesRevisionsWithResponse(ctx, volumeID, linkID, body)
 	if err != nil {
 		return CreateRevisionRes{}, fmt.Errorf("creating revision by volume: %w", err)
 	}
@@ -154,12 +154,12 @@ func (c *Client) GetRevisionByShare(ctx context.Context, shareID, linkID, revisi
 	fromBlockStr := strconv.Itoa(fromBlock)
 	pageSizeStr := strconv.Itoa(pageSize)
 
-	params := &driveapi.GetSharesFilesRevisionParams{
+	params := &driveapi.DriveGetSharesFilesRevisionParams{
 		FromBlockIndex: &fromBlockStr,
 		PageSize:       &pageSizeStr,
 	}
 
-	httpResp, err := c.gen.GetSharesFilesRevision(ctx, shareID, linkID, revisionID, params)
+	httpResp, err := c.gen.DriveGetSharesFilesRevision(ctx, shareID, linkID, revisionID, params)
 	if err != nil {
 		return Revision{}, fmt.Errorf("getting revision by share: %w", err)
 	}
@@ -196,12 +196,12 @@ func (c *Client) GetRevisionByVolume(ctx context.Context, volumeID, linkID, revi
 	fromBlockStr := strconv.Itoa(fromBlock)
 	pageSizeStr := strconv.Itoa(pageSize)
 
-	params := &driveapi.GetV2VolumesFilesRevisionParams{
+	params := &driveapi.DriveGetV2VolumesFilesRevisionParams{
 		FromBlockIndex: &fromBlockStr,
 		PageSize:       &pageSizeStr,
 	}
 
-	httpResp, err := c.gen.GetV2VolumesFilesRevision(ctx, volumeID, linkID, revisionID, params)
+	httpResp, err := c.gen.DriveGetV2VolumesFilesRevision(ctx, volumeID, linkID, revisionID, params)
 	if err != nil {
 		return Revision{}, fmt.Errorf("getting revision by volume: %w", err)
 	}
@@ -228,7 +228,7 @@ func (c *Client) GetRevisionByVolume(ctx context.Context, volumeID, linkID, revi
 
 // DeleteRevisionByShare deletes a revision via the v1 share-scoped endpoint.
 func (c *Client) DeleteRevisionByShare(ctx context.Context, shareID, linkID, revisionID string) error {
-	httpResp, err := c.gen.DeleteSharesFilesRevision(ctx, shareID, linkID, revisionID)
+	httpResp, err := c.gen.DriveDeleteSharesFilesRevision(ctx, shareID, linkID, revisionID)
 	if err != nil {
 		return fmt.Errorf("deleting revision by share: %w", err)
 	}
@@ -248,7 +248,7 @@ func (c *Client) DeleteRevisionByShare(ctx context.Context, shareID, linkID, rev
 
 // DeleteRevisionByVolume deletes a revision via the v2 volume-scoped endpoint.
 func (c *Client) DeleteRevisionByVolume(ctx context.Context, volumeID, linkID, revisionID string) error {
-	httpResp, err := c.gen.DeleteV2VolumesFilesRevision(ctx, volumeID, linkID, revisionID)
+	httpResp, err := c.gen.DriveDeleteV2VolumesFilesRevision(ctx, volumeID, linkID, revisionID)
 	if err != nil {
 		return fmt.Errorf("deleting revision by volume: %w", err)
 	}
@@ -273,7 +273,7 @@ func (c *Client) UpdateRevisionByShare(ctx context.Context, shareID, linkID, rev
 		return fmt.Errorf("updating revision by share: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.UpdateSharesFilesRevisionWithBodyWithResponse(ctx, shareID, linkID, revisionID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveUpdateSharesFilesRevisionWithBodyWithResponse(ctx, shareID, linkID, revisionID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("updating revision by share: %w", err)
 	}
@@ -293,7 +293,7 @@ func (c *Client) UpdateRevisionByVolume(ctx context.Context, volumeID, linkID, r
 		return fmt.Errorf("updating revision by volume: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.UpdateV2VolumesFilesRevisionWithBodyWithResponse(ctx, volumeID, linkID, revisionID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveUpdateV2VolumesFilesRevisionWithBodyWithResponse(ctx, volumeID, linkID, revisionID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("updating revision by volume: %w", err)
 	}
@@ -307,7 +307,7 @@ func (c *Client) UpdateRevisionByVolume(ctx context.Context, volumeID, linkID, r
 
 // RestoreRevisionByShare restores a revision via the v1 share-scoped endpoint.
 func (c *Client) RestoreRevisionByShare(ctx context.Context, shareID, linkID, revisionID string) error {
-	httpResp, err := c.gen.CreateSharesFilesRevisionsRestore(ctx, shareID, linkID, revisionID)
+	httpResp, err := c.gen.DriveCreateSharesFilesRevisionsRestore(ctx, shareID, linkID, revisionID)
 	if err != nil {
 		return fmt.Errorf("restoring revision by share: %w", err)
 	}
@@ -327,7 +327,7 @@ func (c *Client) RestoreRevisionByShare(ctx context.Context, shareID, linkID, re
 
 // RestoreRevisionByVolume restores a revision via the v2 volume-scoped endpoint.
 func (c *Client) RestoreRevisionByVolume(ctx context.Context, volumeID, linkID, revisionID string) error {
-	httpResp, err := c.gen.CreateV2VolumesFilesRevisionsRestore(ctx, volumeID, linkID, revisionID)
+	httpResp, err := c.gen.DriveCreateV2VolumesFilesRevisionsRestore(ctx, volumeID, linkID, revisionID)
 	if err != nil {
 		return fmt.Errorf("restoring revision by volume: %w", err)
 	}
@@ -402,7 +402,7 @@ func (c *Client) GetRevisionVerificationByVolume(ctx context.Context, volumeID, 
 // ListRevisionsByShare lists revisions via the v1 share-scoped endpoint.
 // Returns revision metadata without block details.
 func (c *Client) ListRevisionsByShare(ctx context.Context, shareID, linkID string) ([]RevisionMetadata, error) {
-	httpResp, err := c.gen.ListSharesFilesRevisions(ctx, shareID, linkID)
+	httpResp, err := c.gen.DriveListSharesFilesRevisions(ctx, shareID, linkID)
 	if err != nil {
 		return nil, fmt.Errorf("listing revisions by share: %w", err)
 	}
@@ -430,7 +430,7 @@ func (c *Client) ListRevisionsByShare(ctx context.Context, shareID, linkID strin
 // ListRevisionsByVolume lists revisions via the v2 volume-scoped endpoint.
 // Returns full revision objects including block details.
 func (c *Client) ListRevisionsByVolume(ctx context.Context, volumeID, linkID string) ([]Revision, error) {
-	httpResp, err := c.gen.ListV2VolumesFilesRevisions(ctx, volumeID, linkID)
+	httpResp, err := c.gen.DriveListV2VolumesFilesRevisions(ctx, volumeID, linkID)
 	if err != nil {
 		return nil, fmt.Errorf("listing revisions by volume: %w", err)
 	}

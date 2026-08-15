@@ -22,7 +22,7 @@ func (c *Client) DeleteMultipleByVolume(ctx context.Context, volumeID string, li
 		return fmt.Errorf("delete multiple by volume: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.CreateV2VolumesDeleteMultipleWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveCreateV2VolumesDeleteMultipleWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("delete multiple by volume: %w", err)
 	}
@@ -49,7 +49,7 @@ func (c *Client) TrashMultipleByVolume(ctx context.Context, volumeID string, lin
 		return fmt.Errorf("trash multiple by volume: marshaling request: %w", err)
 	}
 
-	resp, err := c.gen.CreateV2VolumesTrashMultipleWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
+	resp, err := c.gen.DriveCreateV2VolumesTrashMultipleWithBodyWithResponse(ctx, volumeID, "application/json", bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("trash multiple by volume: %w", err)
 	}

@@ -17,7 +17,7 @@ type DeviceV2 struct {
 
 // GetDevicesByVolume lists devices via the v2 endpoint (GET /drive/v2/devices).
 func (c *Client) GetDevicesByVolume(ctx context.Context) ([]DeviceV2, error) {
-	resp, err := c.gen.ListV2DevicesWithResponse(ctx)
+	resp, err := c.gen.DriveListV2DevicesWithResponse(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("get devices by volume: %w", err)
 	}

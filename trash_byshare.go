@@ -20,12 +20,12 @@ func (c *Client) ListTrashByShare(ctx context.Context, shareID string, page, pag
 	pageStr := strconv.Itoa(page)
 	pageSizeStr := strconv.Itoa(pageSize)
 
-	params := &driveapi.ListSharesTrashParams{
+	params := &driveapi.DriveListSharesTrashParams{
 		Page:     &pageStr,
 		PageSize: &pageSizeStr,
 	}
 
-	httpResp, err := c.gen.ListSharesTrash(ctx, shareID, params)
+	httpResp, err := c.gen.DriveListSharesTrash(ctx, shareID, params)
 	if err != nil {
 		return nil, fmt.Errorf("listing trash by share: %w", err)
 	}
@@ -55,12 +55,12 @@ func (c *Client) ListTrashIDsByVolume(ctx context.Context, volumeID string, page
 	pageStr := strconv.Itoa(page)
 	pageSizeStr := strconv.Itoa(pageSize)
 
-	params := &driveapi.ListV2VolumesTrashParams{
+	params := &driveapi.DriveListV2VolumesTrashParams{
 		Page:     &pageStr,
 		PageSize: &pageSizeStr,
 	}
 
-	httpResp, err := c.gen.ListV2VolumesTrash(ctx, volumeID, params)
+	httpResp, err := c.gen.DriveListV2VolumesTrash(ctx, volumeID, params)
 	if err != nil {
 		return TrashCursor{}, fmt.Errorf("listing trash IDs by volume: %w", err)
 	}

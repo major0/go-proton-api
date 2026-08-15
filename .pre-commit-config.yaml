@@ -16,10 +16,9 @@ repos:
         exclude: '\.gen\.go$'
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v2.1.6
+    rev: v2.12.2
     hooks:
       - id: golangci-lint
-        args: ['--maxkb=2048']
 
   # Commit message format
   - repo: https://github.com/compilerla/conventional-pre-commit
@@ -27,12 +26,6 @@ repos:
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
-
-  # Go linting (golangci-lint wraps go vet + staticcheck + more)
-  - repo: https://github.com/golangci/golangci-lint
-    rev: v2.12.2
-    hooks:
-      - id: golangci-lint
 
   # Shell script analysis
   - repo: https://github.com/koalaman/shellcheck-precommit

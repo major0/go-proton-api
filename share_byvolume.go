@@ -18,12 +18,12 @@ type SharesCursor struct {
 
 // ListSharesByVolume lists shares via the v2 volume-scoped endpoint (cursor pagination).
 func (c *Client) ListSharesByVolume(ctx context.Context, volumeID, anchorID string) (SharesCursor, error) {
-	params := &driveapi.ListV2VolumesSharesParams{}
+	params := &driveapi.DriveListV2VolumesSharesParams{}
 	if anchorID != "" {
 		params.AnchorID = &anchorID
 	}
 
-	httpResp, err := c.gen.ListV2VolumesShares(ctx, volumeID, params)
+	httpResp, err := c.gen.DriveListV2VolumesShares(ctx, volumeID, params)
 	if err != nil {
 		return SharesCursor{}, fmt.Errorf("listing shares by volume: %w", err)
 	}

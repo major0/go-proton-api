@@ -11,7 +11,7 @@ import (
 
 // CreateFolderByShare creates a folder via the v1 share-scoped endpoint.
 func (c *Client) CreateFolderByShare(ctx context.Context, shareID string, req CreateFolderReq) (CreateFolderRes, error) {
-	body := driveapi.CreateSharesFoldersJSONRequestBody{
+	body := driveapi.DriveCreateSharesFoldersJSONRequestBody{
 		ParentLinkID:            &req.ParentLinkID,
 		Name:                    &req.Name,
 		Hash:                    &req.Hash,
@@ -22,7 +22,7 @@ func (c *Client) CreateFolderByShare(ctx context.Context, shareID string, req Cr
 		SignatureAddress:        &req.SignatureAddress,
 	}
 
-	resp, err := c.gen.CreateSharesFoldersWithResponse(ctx, shareID, body)
+	resp, err := c.gen.DriveCreateSharesFoldersWithResponse(ctx, shareID, body)
 	if err != nil {
 		return CreateFolderRes{}, fmt.Errorf("creating folder by share: %w", err)
 	}
@@ -43,7 +43,7 @@ func (c *Client) CreateFolderByShare(ctx context.Context, shareID string, req Cr
 
 // CreateFolderByVolume creates a folder via the v2 volume-scoped endpoint.
 func (c *Client) CreateFolderByVolume(ctx context.Context, volumeID string, req CreateFolderByVolumeReq) (CreateFolderRes, error) {
-	body := driveapi.CreateV2VolumesFoldersJSONRequestBody{
+	body := driveapi.DriveCreateV2VolumesFoldersJSONRequestBody{
 		ParentLinkID:            &req.ParentLinkID,
 		Name:                    &req.Name,
 		Hash:                    &req.Hash,
@@ -54,7 +54,7 @@ func (c *Client) CreateFolderByVolume(ctx context.Context, volumeID string, req 
 		SignatureEmail:          &req.SignatureEmail,
 	}
 
-	resp, err := c.gen.CreateV2VolumesFoldersWithResponse(ctx, volumeID, body)
+	resp, err := c.gen.DriveCreateV2VolumesFoldersWithResponse(ctx, volumeID, body)
 	if err != nil {
 		return CreateFolderRes{}, fmt.Errorf("creating folder by volume: %w", err)
 	}
@@ -85,20 +85,20 @@ func (c *Client) ListChildrenByShare(ctx context.Context, shareID, linkID string
 	pageStr := strconv.Itoa(page)
 	pageSizeStr := strconv.Itoa(pageSize)
 
-	var showAllParam driveapi.ListSharesFoldersChildrenParamsShowAll
+	var showAllParam driveapi.DriveListSharesFoldersChildrenParamsShowAll
 	if showAll {
 		showAllParam = 1
 	} else {
 		showAllParam = 0
 	}
 
-	params := &driveapi.ListSharesFoldersChildrenParams{
+	params := &driveapi.DriveListSharesFoldersChildrenParams{
 		Page:     &pageStr,
 		PageSize: &pageSizeStr,
 		ShowAll:  &showAllParam,
 	}
 
-	httpResp, err := c.gen.ListSharesFoldersChildren(ctx, shareID, linkID, params)
+	httpResp, err := c.gen.DriveListSharesFoldersChildren(ctx, shareID, linkID, params)
 	if err != nil {
 		return nil, fmt.Errorf("listing children by share: %w", err)
 	}
@@ -125,12 +125,12 @@ func (c *Client) ListChildrenByShare(ctx context.Context, shareID, linkID string
 
 // ListChildrenIDsByVolume lists children via the v2 volume-scoped endpoint (cursor pagination, LinkIDs only).
 func (c *Client) ListChildrenIDsByVolume(ctx context.Context, volumeID, linkID, anchorID string) (ChildrenCursor, error) {
-	params := &driveapi.ListV2VolumesFoldersChildrenParams{}
+	params := &driveapi.DriveListV2VolumesFoldersChildrenParams{}
 	if anchorID != "" {
 		params.AnchorID = &anchorID
 	}
 
-	httpResp, err := c.gen.ListV2VolumesFoldersChildren(ctx, volumeID, linkID, params)
+	httpResp, err := c.gen.DriveListV2VolumesFoldersChildren(ctx, volumeID, linkID, params)
 	if err != nil {
 		return ChildrenCursor{}, fmt.Errorf("listing children IDs by volume: %w", err)
 	}
