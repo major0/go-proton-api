@@ -90,6 +90,12 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 
+	// AuthDeleteV4 performs a DELETE /auth/v4 (the `AuthDeleteV4` operationId) request.
+	AuthDeleteV4(ctx context.Context, params *AuthDeleteV4Params, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AuthCreateV4 performs a POST /auth/v4 (the `AuthCreateV4` operationId) request.
+	AuthCreateV4(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CalendarListV1Members performs a GET /calendar/v1/{calendarId}/members (the `CalendarListV1Members` operationId) request.
 	CalendarListV1Members(ctx context.Context, calendarId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -420,6 +426,32 @@ type ClientInterface interface {
 	// PermissionsUpdateV1MembersRoles performs a PUT /permissions/v1/members/{memberId}/roles (the `PermissionsUpdateV1MembersRoles` operationId) request.
 	// Takes a body of the `application/json` content type.
 	PermissionsUpdateV1MembersRoles(ctx context.Context, memberId string, body PermissionsUpdateV1MembersRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+// AuthDeleteV4 performs a DELETE /auth/v4 (the `AuthDeleteV4` operationId) request.
+func (c *Client) AuthDeleteV4(ctx context.Context, params *AuthDeleteV4Params, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthDeleteV4Request(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// AuthCreateV4 performs a POST /auth/v4 (the `AuthCreateV4` operationId) request.
+func (c *Client) AuthCreateV4(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthCreateV4Request(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 // CalendarListV1Members performs a GET /calendar/v1/{calendarId}/members (the `CalendarListV1Members` operationId) request.
@@ -1641,6 +1673,87 @@ func (c *Client) PermissionsUpdateV1MembersRoles(ctx context.Context, memberId s
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewAuthDeleteV4Request constructs an http.Request for the AuthDeleteV4 method
+func NewAuthDeleteV4Request(server string, params *AuthDeleteV4Params) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/auth/v4")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.AuthDevice != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "AuthDevice", *params.AuthDevice, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAuthCreateV4Request constructs an http.Request for the AuthCreateV4 method
+func NewAuthCreateV4Request(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/auth/v4")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewCalendarListV1MembersRequest constructs an http.Request for the CalendarListV1Members method
@@ -4338,6 +4451,16 @@ func WithBaseURL(baseURL string) ClientOption {
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
 
+	// AuthDeleteV4WithResponse performs a DELETE /auth/v4 (the `AuthDeleteV4` operationId) request.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	AuthDeleteV4WithResponse(ctx context.Context, params *AuthDeleteV4Params, reqEditors ...RequestEditorFn) (*AuthDeleteV4Response, error)
+
+	// AuthCreateV4WithResponse performs a POST /auth/v4 (the `AuthCreateV4` operationId) request.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	AuthCreateV4WithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*AuthCreateV4Response, error)
+
 	// CalendarListV1MembersWithResponse performs a GET /calendar/v1/{calendarId}/members (the `CalendarListV1Members` operationId) request.
 	//
 	// Returns a wrapper object for the known response body format(s).
@@ -4782,6 +4905,74 @@ type ClientWithResponsesInterface interface {
 	// PermissionsUpdateV1MembersRolesWithResponse performs a PUT /permissions/v1/members/{memberId}/roles (the `PermissionsUpdateV1MembersRoles` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	PermissionsUpdateV1MembersRolesWithResponse(ctx context.Context, memberId string, body PermissionsUpdateV1MembersRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*PermissionsUpdateV1MembersRolesResponse, error)
+}
+
+type AuthDeleteV4Response struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// GetBody returns the raw response body bytes
+func (r AuthDeleteV4Response) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r AuthDeleteV4Response) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AuthDeleteV4Response) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r AuthDeleteV4Response) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type AuthCreateV4Response struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// GetBody returns the raw response body bytes
+func (r AuthCreateV4Response) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r AuthCreateV4Response) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AuthCreateV4Response) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r AuthCreateV4Response) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
 }
 
 type CalendarListV1MembersResponse struct {
@@ -7105,6 +7296,28 @@ func (r PermissionsUpdateV1MembersRolesResponse) ContentType() string {
 	return ""
 }
 
+// AuthDeleteV4WithResponse performs a DELETE /auth/v4 (the `AuthDeleteV4` operationId) request.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) AuthDeleteV4WithResponse(ctx context.Context, params *AuthDeleteV4Params, reqEditors ...RequestEditorFn) (*AuthDeleteV4Response, error) {
+	rsp, err := c.AuthDeleteV4(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthDeleteV4Response(rsp)
+}
+
+// AuthCreateV4WithResponse performs a POST /auth/v4 (the `AuthCreateV4` operationId) request.
+//
+// Returns a wrapper object for the known response body format(s).
+func (c *ClientWithResponses) AuthCreateV4WithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*AuthCreateV4Response, error) {
+	rsp, err := c.AuthCreateV4(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthCreateV4Response(rsp)
+}
+
 // CalendarListV1MembersWithResponse performs a GET /calendar/v1/{calendarId}/members (the `CalendarListV1Members` operationId) request.
 //
 // Returns a wrapper object for the known response body format(s).
@@ -8082,6 +8295,38 @@ func (c *ClientWithResponses) PermissionsUpdateV1MembersRolesWithResponse(ctx co
 		return nil, err
 	}
 	return ParsePermissionsUpdateV1MembersRolesResponse(rsp)
+}
+
+// ParseAuthDeleteV4Response parses an HTTP response from a AuthDeleteV4WithResponse call
+func ParseAuthDeleteV4Response(rsp *http.Response) (*AuthDeleteV4Response, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AuthDeleteV4Response{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseAuthCreateV4Response parses an HTTP response from a AuthCreateV4WithResponse call
+func ParseAuthCreateV4Response(rsp *http.Response) (*AuthCreateV4Response, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AuthCreateV4Response{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
 }
 
 // ParseCalendarListV1MembersResponse parses an HTTP response from a CalendarListV1MembersWithResponse call

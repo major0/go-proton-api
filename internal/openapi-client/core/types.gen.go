@@ -507,6 +507,11 @@ func (e CoreUpdateV4MembersLumoJSONBodyMaxLumo) Valid() bool {
 	}
 }
 
+// AuthDeleteV4Params defines parameters for AuthDeleteV4.
+type AuthDeleteV4Params struct {
+	AuthDevice *int `form:"AuthDevice,omitempty" json:"AuthDevice,omitempty"`
+}
+
 // CalendarCreateV1MembersJSONBody defines parameters for CalendarCreateV1Members.
 type CalendarCreateV1MembersJSONBody struct {
 	AddressID *string `json:"AddressID,omitempty"`
