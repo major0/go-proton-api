@@ -4,11 +4,7 @@
 package lumoapi
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -87,82 +83,6 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-
-	// OtherCreateAiV1FeedbackWithBody performs a POST /ai/v1/feedback (the `OtherCreateAiV1Feedback` operationId) request,
-	// with any type of body and a specified content type.
-	OtherCreateAiV1FeedbackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// OtherCreateAiV1Feedback performs a POST /ai/v1/feedback (the `OtherCreateAiV1Feedback` operationId) request.
-	// Takes a body of the `application/json` content type.
-	OtherCreateAiV1Feedback(ctx context.Context, body OtherCreateAiV1FeedbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-}
-
-// OtherCreateAiV1FeedbackWithBody performs a POST /ai/v1/feedback (the `OtherCreateAiV1Feedback` operationId) request,
-// with any type of body and a specified content type.
-func (c *Client) OtherCreateAiV1FeedbackWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewOtherCreateAiV1FeedbackRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// OtherCreateAiV1Feedback performs a POST /ai/v1/feedback (the `OtherCreateAiV1Feedback` operationId) request.
-// Takes a body of the `application/json` content type.
-func (c *Client) OtherCreateAiV1Feedback(ctx context.Context, body OtherCreateAiV1FeedbackJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewOtherCreateAiV1FeedbackRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// NewOtherCreateAiV1FeedbackRequest calls the generic OtherCreateAiV1Feedback builder with application/json body
-func NewOtherCreateAiV1FeedbackRequest(server string, body OtherCreateAiV1FeedbackJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewOtherCreateAiV1FeedbackRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewOtherCreateAiV1FeedbackRequestWithBody constructs an http.Request for the OtherCreateAiV1Feedback method, with any body, and a specified content type
-func NewOtherCreateAiV1FeedbackRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/ai/v1/feedback")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
 }
 
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
@@ -208,86 +128,4 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-
-	// OtherCreateAiV1FeedbackWithBodyWithResponse performs a POST /ai/v1/feedback (the `OtherCreateAiV1Feedback` operationId) request,
-	// with any type of body and a specified content type.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	OtherCreateAiV1FeedbackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*OtherCreateAiV1FeedbackResponse, error)
-
-	// OtherCreateAiV1FeedbackWithResponse performs a POST /ai/v1/feedback (the `OtherCreateAiV1Feedback` operationId) request.
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	OtherCreateAiV1FeedbackWithResponse(ctx context.Context, body OtherCreateAiV1FeedbackJSONRequestBody, reqEditors ...RequestEditorFn) (*OtherCreateAiV1FeedbackResponse, error)
-}
-
-type OtherCreateAiV1FeedbackResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r OtherCreateAiV1FeedbackResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r OtherCreateAiV1FeedbackResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r OtherCreateAiV1FeedbackResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r OtherCreateAiV1FeedbackResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-// OtherCreateAiV1FeedbackWithBodyWithResponse performs a POST /ai/v1/feedback (the `OtherCreateAiV1Feedback` operationId) request,
-// with any type of body and a specified content type.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) OtherCreateAiV1FeedbackWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*OtherCreateAiV1FeedbackResponse, error) {
-	rsp, err := c.OtherCreateAiV1FeedbackWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseOtherCreateAiV1FeedbackResponse(rsp)
-}
-
-// OtherCreateAiV1FeedbackWithResponse performs a POST /ai/v1/feedback (the `OtherCreateAiV1Feedback` operationId) request.
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) OtherCreateAiV1FeedbackWithResponse(ctx context.Context, body OtherCreateAiV1FeedbackJSONRequestBody, reqEditors ...RequestEditorFn) (*OtherCreateAiV1FeedbackResponse, error) {
-	rsp, err := c.OtherCreateAiV1Feedback(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseOtherCreateAiV1FeedbackResponse(rsp)
-}
-
-// ParseOtherCreateAiV1FeedbackResponse parses an HTTP response from a OtherCreateAiV1FeedbackWithResponse call
-func ParseOtherCreateAiV1FeedbackResponse(rsp *http.Response) (*OtherCreateAiV1FeedbackResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &OtherCreateAiV1FeedbackResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
 }
