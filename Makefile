@@ -12,9 +12,9 @@ SPEC := $(lastword $(sort $(wildcard ../open-proton-api.git/output/proton-full-a
 OAPI := github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.8.0
 BASE := internal/openapi-client
 
-.PHONY: generate all core
+.PHONY: generate all core domains
 
-all: core
+all: core domains
 
 # Generic target: make generate PACKAGE=foo TAGS="tag1,tag2"
 generate:
@@ -28,3 +28,7 @@ generate:
 # Core: account, auth, oauth, core platform, permissions
 core:
 	$(MAKE) generate PACKAGE=core TAGS="account,auth,oauth,core,permissions,groups,members"
+
+# Domains
+domains:
+	$(MAKE) generate PACKAGE=domains TAGS="domains"
