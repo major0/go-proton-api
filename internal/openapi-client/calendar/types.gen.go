@@ -621,24 +621,6 @@ func (e DriveUpdateUrlsFilesRevisionJSONBodyPhotoTags) Valid() bool {
 	}
 }
 
-// Defines values for DriveListUrlsFoldersChildrenParamsThumbnails.
-const (
-	DriveListUrlsFoldersChildrenParamsThumbnailsN0 DriveListUrlsFoldersChildrenParamsThumbnails = 0
-	DriveListUrlsFoldersChildrenParamsThumbnailsN1 DriveListUrlsFoldersChildrenParamsThumbnails = 1
-)
-
-// Valid indicates whether the value is a known member of the DriveListUrlsFoldersChildrenParamsThumbnails enum.
-func (e DriveListUrlsFoldersChildrenParamsThumbnails) Valid() bool {
-	switch e {
-	case DriveListUrlsFoldersChildrenParamsThumbnailsN0:
-		return true
-	case DriveListUrlsFoldersChildrenParamsThumbnailsN1:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for DriveListUrlsFoldersChildrenParamsDesc.
 const (
 	DriveListUrlsFoldersChildrenParamsDescN0 DriveListUrlsFoldersChildrenParamsDesc = 0
@@ -651,6 +633,24 @@ func (e DriveListUrlsFoldersChildrenParamsDesc) Valid() bool {
 	case DriveListUrlsFoldersChildrenParamsDescN0:
 		return true
 	case DriveListUrlsFoldersChildrenParamsDescN1:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DriveListUrlsFoldersChildrenParamsThumbnails.
+const (
+	DriveListUrlsFoldersChildrenParamsThumbnailsN0 DriveListUrlsFoldersChildrenParamsThumbnails = 0
+	DriveListUrlsFoldersChildrenParamsThumbnailsN1 DriveListUrlsFoldersChildrenParamsThumbnails = 1
+)
+
+// Valid indicates whether the value is a known member of the DriveListUrlsFoldersChildrenParamsThumbnails enum.
+func (e DriveListUrlsFoldersChildrenParamsThumbnails) Valid() bool {
+	switch e {
+	case DriveListUrlsFoldersChildrenParamsThumbnailsN0:
+		return true
+	case DriveListUrlsFoldersChildrenParamsThumbnailsN1:
 		return true
 	default:
 		return false
@@ -745,16 +745,6 @@ func (e DriveCreateV2UrlsBookmark200JSONResponseBodyBookmarkShareURLState) Valid
 	default:
 		return false
 	}
-}
-
-// AuthDeleteV4Params defines parameters for AuthDeleteV4.
-type AuthDeleteV4Params struct {
-	AuthDevice *int `form:"AuthDevice,omitempty" json:"AuthDevice,omitempty"`
-}
-
-// CalendarListV1Params defines parameters for CalendarListV1.
-type CalendarListV1Params struct {
-	OrderBy *string `form:"OrderBy,omitempty" json:"OrderBy,omitempty"`
 }
 
 // CalendarGetV1BookingExternalParams defines parameters for CalendarGetV1BookingExternal.
@@ -1342,16 +1332,6 @@ type CoreListV4MembersVpnParams struct {
 	PageSize *string `form:"PageSize,omitempty" json:"PageSize,omitempty"`
 }
 
-// DomainsCreateDomainsJSONBody defines parameters for DomainsCreateDomains.
-type DomainsCreateDomainsJSONBody struct {
-	Name *string `json:"Name,omitempty"`
-}
-
-// DomainsGetDomainParams defines parameters for DomainsGetDomain.
-type DomainsGetDomainParams struct {
-	Refresh *string `form:"Refresh,omitempty" json:"Refresh,omitempty"`
-}
-
 // DriveCreateUrlsAuthJSONBody defines parameters for DriveCreateUrlsAuth.
 type DriveCreateUrlsAuthJSONBody struct {
 	ClientEphemeral *string `json:"ClientEphemeral,omitempty"`
@@ -1510,19 +1490,19 @@ type DriveCreateUrlsFoldersJSONBody struct {
 // DriveListUrlsFoldersChildrenParams defines parameters for DriveListUrlsFoldersChildren.
 type DriveListUrlsFoldersChildrenParams struct {
 	Page        *string                                        `form:"Page,omitempty" json:"Page,omitempty"`
-	Thumbnails  *DriveListUrlsFoldersChildrenParamsThumbnails  `form:"Thumbnails,omitempty" json:"Thumbnails,omitempty"`
 	PageSize    *string                                        `form:"PageSize,omitempty" json:"PageSize,omitempty"`
-	Sort        *string                                        `form:"Sort,omitempty" json:"Sort,omitempty"`
 	Desc        *DriveListUrlsFoldersChildrenParamsDesc        `form:"Desc,omitempty" json:"Desc,omitempty"`
+	Sort        *string                                        `form:"Sort,omitempty" json:"Sort,omitempty"`
+	Thumbnails  *DriveListUrlsFoldersChildrenParamsThumbnails  `form:"Thumbnails,omitempty" json:"Thumbnails,omitempty"`
 	ShowAll     *DriveListUrlsFoldersChildrenParamsShowAll     `form:"ShowAll,omitempty" json:"ShowAll,omitempty"`
 	FoldersOnly *DriveListUrlsFoldersChildrenParamsFoldersOnly `form:"FoldersOnly,omitempty" json:"FoldersOnly,omitempty"`
 }
 
-// DriveListUrlsFoldersChildrenParamsThumbnails defines parameters for DriveListUrlsFoldersChildren.
-type DriveListUrlsFoldersChildrenParamsThumbnails int
-
 // DriveListUrlsFoldersChildrenParamsDesc defines parameters for DriveListUrlsFoldersChildren.
 type DriveListUrlsFoldersChildrenParamsDesc int
+
+// DriveListUrlsFoldersChildrenParamsThumbnails defines parameters for DriveListUrlsFoldersChildren.
+type DriveListUrlsFoldersChildrenParamsThumbnails int
 
 // DriveListUrlsFoldersChildrenParamsShowAll defines parameters for DriveListUrlsFoldersChildren.
 type DriveListUrlsFoldersChildrenParamsShowAll int
@@ -1581,12 +1561,6 @@ type DriveCreateV2UrlsBookmarkJSONBody struct {
 
 // DriveCreateV2UrlsBookmark200JSONResponseBodyBookmarkShareURLState defines parameters for DriveCreateV2UrlsBookmark.
 type DriveCreateV2UrlsBookmark200JSONResponseBodyBookmarkShareURLState int
-
-// MetricsCreateMetricsJSONBody defines parameters for MetricsCreateMetrics.
-type MetricsCreateMetricsJSONBody struct {
-	Log   *string `json:"Log,omitempty"`
-	Title *string `json:"Title,omitempty"`
-}
 
 // PermissionsUpdateV1MembersRolesJSONBody defines parameters for PermissionsUpdateV1MembersRoles.
 type PermissionsUpdateV1MembersRolesJSONBody struct {
@@ -1714,9 +1688,6 @@ type CoreUpdateV4MembersRoleJSONRequestBody CoreUpdateV4MembersRoleJSONBody
 // CoreCreateV4MembersUnprivatizeJSONRequestBody defines body for CoreCreateV4MembersUnprivatize for application/json ContentType.
 type CoreCreateV4MembersUnprivatizeJSONRequestBody CoreCreateV4MembersUnprivatizeJSONBody
 
-// DomainsCreateDomainsJSONRequestBody defines body for DomainsCreateDomains for application/json ContentType.
-type DomainsCreateDomainsJSONRequestBody DomainsCreateDomainsJSONBody
-
 // DriveCreateUrlsAuthJSONRequestBody defines body for DriveCreateUrlsAuth for application/json ContentType.
 type DriveCreateUrlsAuthJSONRequestBody DriveCreateUrlsAuthJSONBody
 
@@ -1755,9 +1726,6 @@ type DriveCreateUrlsSecurityJSONRequestBody DriveCreateUrlsSecurityJSONBody
 
 // DriveCreateV2UrlsBookmarkJSONRequestBody defines body for DriveCreateV2UrlsBookmark for application/json ContentType.
 type DriveCreateV2UrlsBookmarkJSONRequestBody DriveCreateV2UrlsBookmarkJSONBody
-
-// MetricsCreateMetricsJSONRequestBody defines body for MetricsCreateMetrics for application/json ContentType.
-type MetricsCreateMetricsJSONRequestBody MetricsCreateMetricsJSONBody
 
 // PermissionsUpdateV1MembersRolesJSONRequestBody defines body for PermissionsUpdateV1MembersRoles for application/json ContentType.
 type PermissionsUpdateV1MembersRolesJSONRequestBody PermissionsUpdateV1MembersRolesJSONBody

@@ -90,15 +90,6 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 
-	// AuthDeleteV4 performs a DELETE /auth/v4 (the `AuthDeleteV4` operationId) request.
-	AuthDeleteV4(ctx context.Context, params *AuthDeleteV4Params, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// AuthCreateV4 performs a POST /auth/v4 (the `AuthCreateV4` operationId) request.
-	AuthCreateV4(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CalendarListV1 performs a GET /calendar/v1 (the `CalendarListV1` operationId) request.
-	CalendarListV1(ctx context.Context, params *CalendarListV1Params, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// CalendarGetV1BookingExternal performs a GET /calendar/v1/booking/external/{bookingUid} (the `CalendarGetV1BookingExternal` operationId) request.
 	CalendarGetV1BookingExternal(ctx context.Context, bookingUid string, params *CalendarGetV1BookingExternalParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -188,12 +179,6 @@ type ClientInterface interface {
 	// CalendarUpdateV1Url performs a PUT /calendar/v1/{calendarId}/urls/{shareUrlId} (the `CalendarUpdateV1Url` operationId) request.
 	// Takes a body of the `application/json` content type.
 	CalendarUpdateV1Url(ctx context.Context, calendarId string, shareUrlId string, body CalendarUpdateV1UrlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ContactsListV4 performs a GET /contacts/v4 (the `ContactsListV4` operationId) request.
-	ContactsListV4(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ContactsCreateV4 performs a POST /contacts/v4 (the `ContactsCreateV4` operationId) request.
-	ContactsCreateV4(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CoreListV4EventsLatest performs a GET /core/v4/events/latest (the `CoreListV4EventsLatest` operationId) request.
 	CoreListV4EventsLatest(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -500,23 +485,6 @@ type ClientInterface interface {
 	// CoreGetV6Event performs a GET /core/v6/events/{eventId} (the `CoreGetV6Event` operationId) request.
 	CoreGetV6Event(ctx context.Context, eventId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// DomainsListDomains performs a GET /domains (the `DomainsListDomains` operationId) request.
-	DomainsListDomains(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DomainsCreateDomainsWithBody performs a POST /domains (the `DomainsCreateDomains` operationId) request,
-	// with any type of body and a specified content type.
-	DomainsCreateDomainsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DomainsCreateDomains performs a POST /domains (the `DomainsCreateDomains` operationId) request.
-	// Takes a body of the `application/json` content type.
-	DomainsCreateDomains(ctx context.Context, body DomainsCreateDomainsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DomainsDeleteDomain performs a DELETE /domains/{domainId} (the `DomainsDeleteDomain` operationId) request.
-	DomainsDeleteDomain(ctx context.Context, domainId string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DomainsGetDomain performs a GET /domains/{domainId} (the `DomainsGetDomain` operationId) request.
-	DomainsGetDomain(ctx context.Context, domainId string, params *DomainsGetDomainParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// DriveGetUrl performs a GET /drive/urls/{token} (the `DriveGetUrl` operationId) request.
 	DriveGetUrl(ctx context.Context, token string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -645,14 +613,6 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	DriveCreateV2UrlsBookmark(ctx context.Context, token string, body DriveCreateV2UrlsBookmarkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// MetricsCreateMetricsWithBody performs a POST /metrics (the `MetricsCreateMetrics` operationId) request,
-	// with any type of body and a specified content type.
-	MetricsCreateMetricsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// MetricsCreateMetrics performs a POST /metrics (the `MetricsCreateMetrics` operationId) request.
-	// Takes a body of the `application/json` content type.
-	MetricsCreateMetrics(ctx context.Context, body MetricsCreateMetricsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// PermissionsListV1MembersRoles performs a GET /permissions/v1/members/{memberId}/roles (the `PermissionsListV1MembersRoles` operationId) request.
 	PermissionsListV1MembersRoles(ctx context.Context, memberId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -663,45 +623,6 @@ type ClientInterface interface {
 	// PermissionsUpdateV1MembersRoles performs a PUT /permissions/v1/members/{memberId}/roles (the `PermissionsUpdateV1MembersRoles` operationId) request.
 	// Takes a body of the `application/json` content type.
 	PermissionsUpdateV1MembersRoles(ctx context.Context, memberId string, body PermissionsUpdateV1MembersRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-}
-
-// AuthDeleteV4 performs a DELETE /auth/v4 (the `AuthDeleteV4` operationId) request.
-func (c *Client) AuthDeleteV4(ctx context.Context, params *AuthDeleteV4Params, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAuthDeleteV4Request(c.Server, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// AuthCreateV4 performs a POST /auth/v4 (the `AuthCreateV4` operationId) request.
-func (c *Client) AuthCreateV4(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewAuthCreateV4Request(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// CalendarListV1 performs a GET /calendar/v1 (the `CalendarListV1` operationId) request.
-func (c *Client) CalendarListV1(ctx context.Context, params *CalendarListV1Params, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCalendarListV1Request(c.Server, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
 }
 
 // CalendarGetV1BookingExternal performs a GET /calendar/v1/booking/external/{bookingUid} (the `CalendarGetV1BookingExternal` operationId) request.
@@ -1024,32 +945,6 @@ func (c *Client) CalendarUpdateV1UrlWithBody(ctx context.Context, calendarId str
 // Takes a body of the `application/json` content type.
 func (c *Client) CalendarUpdateV1Url(ctx context.Context, calendarId string, shareUrlId string, body CalendarUpdateV1UrlJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCalendarUpdateV1UrlRequest(c.Server, calendarId, shareUrlId, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// ContactsListV4 performs a GET /contacts/v4 (the `ContactsListV4` operationId) request.
-func (c *Client) ContactsListV4(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewContactsListV4Request(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// ContactsCreateV4 performs a POST /contacts/v4 (the `ContactsCreateV4` operationId) request.
-func (c *Client) ContactsCreateV4(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewContactsCreateV4Request(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -2175,73 +2070,6 @@ func (c *Client) CoreGetV6Event(ctx context.Context, eventId string, reqEditors 
 	return c.Client.Do(req)
 }
 
-// DomainsListDomains performs a GET /domains (the `DomainsListDomains` operationId) request.
-func (c *Client) DomainsListDomains(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainsListDomainsRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// DomainsCreateDomainsWithBody performs a POST /domains (the `DomainsCreateDomains` operationId) request,
-// with any type of body and a specified content type.
-func (c *Client) DomainsCreateDomainsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainsCreateDomainsRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// DomainsCreateDomains performs a POST /domains (the `DomainsCreateDomains` operationId) request.
-// Takes a body of the `application/json` content type.
-func (c *Client) DomainsCreateDomains(ctx context.Context, body DomainsCreateDomainsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainsCreateDomainsRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// DomainsDeleteDomain performs a DELETE /domains/{domainId} (the `DomainsDeleteDomain` operationId) request.
-func (c *Client) DomainsDeleteDomain(ctx context.Context, domainId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainsDeleteDomainRequest(c.Server, domainId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// DomainsGetDomain performs a GET /domains/{domainId} (the `DomainsGetDomain` operationId) request.
-func (c *Client) DomainsGetDomain(ctx context.Context, domainId string, params *DomainsGetDomainParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDomainsGetDomainRequest(c.Server, domainId, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 // DriveGetUrl performs a GET /drive/urls/{token} (the `DriveGetUrl` operationId) request.
 func (c *Client) DriveGetUrl(ctx context.Context, token string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDriveGetUrlRequest(c.Server, token)
@@ -2710,34 +2538,6 @@ func (c *Client) DriveCreateV2UrlsBookmark(ctx context.Context, token string, bo
 	return c.Client.Do(req)
 }
 
-// MetricsCreateMetricsWithBody performs a POST /metrics (the `MetricsCreateMetrics` operationId) request,
-// with any type of body and a specified content type.
-func (c *Client) MetricsCreateMetricsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMetricsCreateMetricsRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// MetricsCreateMetrics performs a POST /metrics (the `MetricsCreateMetrics` operationId) request.
-// Takes a body of the `application/json` content type.
-func (c *Client) MetricsCreateMetrics(ctx context.Context, body MetricsCreateMetricsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewMetricsCreateMetricsRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 // PermissionsListV1MembersRoles performs a GET /permissions/v1/members/{memberId}/roles (the `PermissionsListV1MembersRoles` operationId) request.
 func (c *Client) PermissionsListV1MembersRoles(ctx context.Context, memberId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPermissionsListV1MembersRolesRequest(c.Server, memberId)
@@ -2777,141 +2577,6 @@ func (c *Client) PermissionsUpdateV1MembersRoles(ctx context.Context, memberId s
 		return nil, err
 	}
 	return c.Client.Do(req)
-}
-
-// NewAuthDeleteV4Request constructs an http.Request for the AuthDeleteV4 method
-func NewAuthDeleteV4Request(server string, params *AuthDeleteV4Params) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/auth/v4")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		// queryValues collects non-styled parameters (passthrough, JSON)
-		// that are safe to round-trip through url.Values.Encode().
-		queryValues := queryURL.Query()
-		// rawQueryFragments collects pre-encoded query fragments from
-		// styled parameters, preserving literal commas as delimiters
-		// per the OpenAPI spec (e.g. "color=blue,black,brown").
-		var rawQueryFragments []string
-
-		if params.AuthDevice != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "AuthDevice", *params.AuthDevice, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if encoded := queryValues.Encode(); encoded != "" {
-			rawQueryFragments = append(rawQueryFragments, encoded)
-		}
-		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
-	}
-
-	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewAuthCreateV4Request constructs an http.Request for the AuthCreateV4 method
-func NewAuthCreateV4Request(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/auth/v4")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCalendarListV1Request constructs an http.Request for the CalendarListV1 method
-func NewCalendarListV1Request(server string, params *CalendarListV1Params) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/calendar/v1")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		// queryValues collects non-styled parameters (passthrough, JSON)
-		// that are safe to round-trip through url.Values.Encode().
-		queryValues := queryURL.Query()
-		// rawQueryFragments collects pre-encoded query fragments from
-		// styled parameters, preserving literal commas as delimiters
-		// per the OpenAPI spec (e.g. "color=blue,black,brown").
-		var rawQueryFragments []string
-
-		if params.OrderBy != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "OrderBy", *params.OrderBy, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if encoded := queryValues.Encode(); encoded != "" {
-			rawQueryFragments = append(rawQueryFragments, encoded)
-		}
-		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
 }
 
 // NewCalendarGetV1BookingExternalRequest constructs an http.Request for the CalendarGetV1BookingExternal method
@@ -3634,60 +3299,6 @@ func NewCalendarUpdateV1UrlRequestWithBody(server string, calendarId string, sha
 	}
 
 	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewContactsListV4Request constructs an http.Request for the ContactsListV4 method
-func NewContactsListV4Request(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/contacts/v4")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewContactsCreateV4Request constructs an http.Request for the ContactsCreateV4 method
-func NewContactsCreateV4Request(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/contacts/v4")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
 
 	return req, nil
 }
@@ -6160,168 +5771,6 @@ func NewCoreGetV6EventRequest(server string, eventId string) (*http.Request, err
 	return req, nil
 }
 
-// NewDomainsListDomainsRequest constructs an http.Request for the DomainsListDomains method
-func NewDomainsListDomainsRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/domains")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewDomainsCreateDomainsRequest calls the generic DomainsCreateDomains builder with application/json body
-func NewDomainsCreateDomainsRequest(server string, body DomainsCreateDomainsJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewDomainsCreateDomainsRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewDomainsCreateDomainsRequestWithBody constructs an http.Request for the DomainsCreateDomains method, with any body, and a specified content type
-func NewDomainsCreateDomainsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/domains")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewDomainsDeleteDomainRequest constructs an http.Request for the DomainsDeleteDomain method
-func NewDomainsDeleteDomainRequest(server string, domainId string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "domainId", domainId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/domains/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewDomainsGetDomainRequest constructs an http.Request for the DomainsGetDomain method
-func NewDomainsGetDomainRequest(server string, domainId string, params *DomainsGetDomainParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "domainId", domainId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/domains/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		// queryValues collects non-styled parameters (passthrough, JSON)
-		// that are safe to round-trip through url.Values.Encode().
-		queryValues := queryURL.Query()
-		// rawQueryFragments collects pre-encoded query fragments from
-		// styled parameters, preserving literal commas as delimiters
-		// per the OpenAPI spec (e.g. "color=blue,black,brown").
-		var rawQueryFragments []string
-
-		if params.Refresh != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "Refresh", *params.Refresh, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			} else {
-				for _, qp := range strings.Split(queryFrag, "&") {
-					rawQueryFragments = append(rawQueryFragments, qp)
-				}
-			}
-
-		}
-
-		if encoded := queryValues.Encode(); encoded != "" {
-			rawQueryFragments = append(rawQueryFragments, encoded)
-		}
-		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
-	}
-
-	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewDriveGetUrlRequest constructs an http.Request for the DriveGetUrl method
 func NewDriveGetUrlRequest(server string, token string) (*http.Request, error) {
 	var err error
@@ -6947,9 +6396,9 @@ func NewDriveListUrlsFoldersChildrenRequest(server string, token string, linkId 
 
 		}
 
-		if params.Thumbnails != nil {
+		if params.PageSize != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "Thumbnails", *params.Thumbnails, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "PageSize", *params.PageSize, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -6959,9 +6408,9 @@ func NewDriveListUrlsFoldersChildrenRequest(server string, token string, linkId 
 
 		}
 
-		if params.PageSize != nil {
+		if params.Desc != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "PageSize", *params.PageSize, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "Desc", *params.Desc, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -6983,9 +6432,9 @@ func NewDriveListUrlsFoldersChildrenRequest(server string, token string, linkId 
 
 		}
 
-		if params.Desc != nil {
+		if params.Thumbnails != nil {
 
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "Desc", *params.Desc, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "Thumbnails", *params.Thumbnails, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
@@ -7439,46 +6888,6 @@ func NewDriveCreateV2UrlsBookmarkRequestWithBody(server string, token string, co
 	return req, nil
 }
 
-// NewMetricsCreateMetricsRequest calls the generic MetricsCreateMetrics builder with application/json body
-func NewMetricsCreateMetricsRequest(server string, body MetricsCreateMetricsJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewMetricsCreateMetricsRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewMetricsCreateMetricsRequestWithBody constructs an http.Request for the MetricsCreateMetrics method, with any body, and a specified content type
-func NewMetricsCreateMetricsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/metrics")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewPermissionsListV1MembersRolesRequest constructs an http.Request for the PermissionsListV1MembersRoles method
 func NewPermissionsListV1MembersRolesRequest(server string, memberId string) (*http.Request, error) {
 	var err error
@@ -7604,21 +7013,6 @@ func WithBaseURL(baseURL string) ClientOption {
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
 
-	// AuthDeleteV4WithResponse performs a DELETE /auth/v4 (the `AuthDeleteV4` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	AuthDeleteV4WithResponse(ctx context.Context, params *AuthDeleteV4Params, reqEditors ...RequestEditorFn) (*AuthDeleteV4Response, error)
-
-	// AuthCreateV4WithResponse performs a POST /auth/v4 (the `AuthCreateV4` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	AuthCreateV4WithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*AuthCreateV4Response, error)
-
-	// CalendarListV1WithResponse performs a GET /calendar/v1 (the `CalendarListV1` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	CalendarListV1WithResponse(ctx context.Context, params *CalendarListV1Params, reqEditors ...RequestEditorFn) (*CalendarListV1Response, error)
-
 	// CalendarGetV1BookingExternalWithResponse performs a GET /calendar/v1/booking/external/{bookingUid} (the `CalendarGetV1BookingExternal` operationId) request.
 	//
 	// Returns a wrapper object for the known response body format(s).
@@ -7738,16 +7132,6 @@ type ClientWithResponsesInterface interface {
 	// CalendarUpdateV1UrlWithResponse performs a PUT /calendar/v1/{calendarId}/urls/{shareUrlId} (the `CalendarUpdateV1Url` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	CalendarUpdateV1UrlWithResponse(ctx context.Context, calendarId string, shareUrlId string, body CalendarUpdateV1UrlJSONRequestBody, reqEditors ...RequestEditorFn) (*CalendarUpdateV1UrlResponse, error)
-
-	// ContactsListV4WithResponse performs a GET /contacts/v4 (the `ContactsListV4` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	ContactsListV4WithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ContactsListV4Response, error)
-
-	// ContactsCreateV4WithResponse performs a POST /contacts/v4 (the `ContactsCreateV4` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	ContactsCreateV4WithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ContactsCreateV4Response, error)
 
 	// CoreListV4EventsLatestWithResponse performs a GET /core/v4/events/latest (the `CoreListV4EventsLatest` operationId) request.
 	//
@@ -8154,31 +7538,6 @@ type ClientWithResponsesInterface interface {
 	// Returns a wrapper object for the known response body format(s).
 	CoreGetV6EventWithResponse(ctx context.Context, eventId string, reqEditors ...RequestEditorFn) (*CoreGetV6EventResponse, error)
 
-	// DomainsListDomainsWithResponse performs a GET /domains (the `DomainsListDomains` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	DomainsListDomainsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DomainsListDomainsResponse, error)
-
-	// DomainsCreateDomainsWithBodyWithResponse performs a POST /domains (the `DomainsCreateDomains` operationId) request,
-	// with any type of body and a specified content type.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	DomainsCreateDomainsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainsCreateDomainsResponse, error)
-
-	// DomainsCreateDomainsWithResponse performs a POST /domains (the `DomainsCreateDomains` operationId) request.
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	DomainsCreateDomainsWithResponse(ctx context.Context, body DomainsCreateDomainsJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainsCreateDomainsResponse, error)
-
-	// DomainsDeleteDomainWithResponse performs a DELETE /domains/{domainId} (the `DomainsDeleteDomain` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	DomainsDeleteDomainWithResponse(ctx context.Context, domainId string, reqEditors ...RequestEditorFn) (*DomainsDeleteDomainResponse, error)
-
-	// DomainsGetDomainWithResponse performs a GET /domains/{domainId} (the `DomainsGetDomain` operationId) request.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	DomainsGetDomainWithResponse(ctx context.Context, domainId string, params *DomainsGetDomainParams, reqEditors ...RequestEditorFn) (*DomainsGetDomainResponse, error)
-
 	// DriveGetUrlWithResponse performs a GET /drive/urls/{token} (the `DriveGetUrl` operationId) request.
 	//
 	// Returns a wrapper object for the known response body format(s).
@@ -8349,16 +7708,6 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	DriveCreateV2UrlsBookmarkWithResponse(ctx context.Context, token string, body DriveCreateV2UrlsBookmarkJSONRequestBody, reqEditors ...RequestEditorFn) (*DriveCreateV2UrlsBookmarkResponse, error)
 
-	// MetricsCreateMetricsWithBodyWithResponse performs a POST /metrics (the `MetricsCreateMetrics` operationId) request,
-	// with any type of body and a specified content type.
-	//
-	// Returns a wrapper object for the known response body format(s).
-	MetricsCreateMetricsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MetricsCreateMetricsResponse, error)
-
-	// MetricsCreateMetricsWithResponse performs a POST /metrics (the `MetricsCreateMetrics` operationId) request.
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	MetricsCreateMetricsWithResponse(ctx context.Context, body MetricsCreateMetricsJSONRequestBody, reqEditors ...RequestEditorFn) (*MetricsCreateMetricsResponse, error)
-
 	// PermissionsListV1MembersRolesWithResponse performs a GET /permissions/v1/members/{memberId}/roles (the `PermissionsListV1MembersRoles` operationId) request.
 	//
 	// Returns a wrapper object for the known response body format(s).
@@ -8373,119 +7722,6 @@ type ClientWithResponsesInterface interface {
 	// PermissionsUpdateV1MembersRolesWithResponse performs a PUT /permissions/v1/members/{memberId}/roles (the `PermissionsUpdateV1MembersRoles` operationId) request.
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	PermissionsUpdateV1MembersRolesWithResponse(ctx context.Context, memberId string, body PermissionsUpdateV1MembersRolesJSONRequestBody, reqEditors ...RequestEditorFn) (*PermissionsUpdateV1MembersRolesResponse, error)
-}
-
-type AuthDeleteV4Response struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r AuthDeleteV4Response) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r AuthDeleteV4Response) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r AuthDeleteV4Response) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r AuthDeleteV4Response) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type AuthCreateV4Response struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r AuthCreateV4Response) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r AuthCreateV4Response) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r AuthCreateV4Response) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r AuthCreateV4Response) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type CalendarListV1Response struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *struct {
-		Calendars *[]interface{} `json:"Calendars,omitempty"`
-	}
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r CalendarListV1Response) GetJSON200() *struct {
-	Calendars *[]interface{} `json:"Calendars,omitempty"`
-} {
-	return r.JSON200
-}
-
-// GetBody returns the raw response body bytes
-func (r CalendarListV1Response) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r CalendarListV1Response) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CalendarListV1Response) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r CalendarListV1Response) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
 }
 
 type CalendarGetV1BookingExternalResponse struct {
@@ -9014,96 +8250,6 @@ func (r CalendarUpdateV1UrlResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CalendarUpdateV1UrlResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type ContactsListV4Response struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *struct {
-		Total *int `json:"Total,omitempty"`
-	}
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r ContactsListV4Response) GetJSON200() *struct {
-	Total *int `json:"Total,omitempty"`
-} {
-	return r.JSON200
-}
-
-// GetBody returns the raw response body bytes
-func (r ContactsListV4Response) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r ContactsListV4Response) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ContactsListV4Response) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r ContactsListV4Response) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type ContactsCreateV4Response struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *struct {
-		Responses *[]interface{} `json:"Responses,omitempty"`
-	}
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r ContactsCreateV4Response) GetJSON200() *struct {
-	Responses *[]interface{} `json:"Responses,omitempty"`
-} {
-	return r.JSON200
-}
-
-// GetBody returns the raw response body bytes
-func (r ContactsCreateV4Response) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r ContactsCreateV4Response) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ContactsCreateV4Response) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r ContactsCreateV4Response) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -11600,142 +10746,6 @@ func (r CoreGetV6EventResponse) ContentType() string {
 	return ""
 }
 
-type DomainsListDomainsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r DomainsListDomainsResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r DomainsListDomainsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DomainsListDomainsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r DomainsListDomainsResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type DomainsCreateDomainsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r DomainsCreateDomainsResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r DomainsCreateDomainsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DomainsCreateDomainsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r DomainsCreateDomainsResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type DomainsDeleteDomainResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r DomainsDeleteDomainResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r DomainsDeleteDomainResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DomainsDeleteDomainResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r DomainsDeleteDomainResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-type DomainsGetDomainResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r DomainsGetDomainResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r DomainsGetDomainResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DomainsGetDomainResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r DomainsGetDomainResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
 type DriveGetUrlResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -13056,40 +12066,6 @@ func (r DriveCreateV2UrlsBookmarkResponse) ContentType() string {
 	return ""
 }
 
-type MetricsCreateMetricsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// GetBody returns the raw response body bytes
-func (r MetricsCreateMetricsResponse) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r MetricsCreateMetricsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r MetricsCreateMetricsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r MetricsCreateMetricsResponse) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
 type PermissionsListV1MembersRolesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -13156,39 +12132,6 @@ func (r PermissionsUpdateV1MembersRolesResponse) ContentType() string {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
-}
-
-// AuthDeleteV4WithResponse performs a DELETE /auth/v4 (the `AuthDeleteV4` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) AuthDeleteV4WithResponse(ctx context.Context, params *AuthDeleteV4Params, reqEditors ...RequestEditorFn) (*AuthDeleteV4Response, error) {
-	rsp, err := c.AuthDeleteV4(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseAuthDeleteV4Response(rsp)
-}
-
-// AuthCreateV4WithResponse performs a POST /auth/v4 (the `AuthCreateV4` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) AuthCreateV4WithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*AuthCreateV4Response, error) {
-	rsp, err := c.AuthCreateV4(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseAuthCreateV4Response(rsp)
-}
-
-// CalendarListV1WithResponse performs a GET /calendar/v1 (the `CalendarListV1` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) CalendarListV1WithResponse(ctx context.Context, params *CalendarListV1Params, reqEditors ...RequestEditorFn) (*CalendarListV1Response, error) {
-	rsp, err := c.CalendarListV1(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCalendarListV1Response(rsp)
 }
 
 // CalendarGetV1BookingExternalWithResponse performs a GET /calendar/v1/booking/external/{bookingUid} (the `CalendarGetV1BookingExternal` operationId) request.
@@ -13453,28 +12396,6 @@ func (c *ClientWithResponses) CalendarUpdateV1UrlWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseCalendarUpdateV1UrlResponse(rsp)
-}
-
-// ContactsListV4WithResponse performs a GET /contacts/v4 (the `ContactsListV4` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) ContactsListV4WithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ContactsListV4Response, error) {
-	rsp, err := c.ContactsListV4(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseContactsListV4Response(rsp)
-}
-
-// ContactsCreateV4WithResponse performs a POST /contacts/v4 (the `ContactsCreateV4` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) ContactsCreateV4WithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ContactsCreateV4Response, error) {
-	rsp, err := c.ContactsCreateV4(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseContactsCreateV4Response(rsp)
 }
 
 // CoreListV4EventsLatestWithResponse performs a GET /core/v4/events/latest (the `CoreListV4EventsLatest` operationId) request.
@@ -14368,61 +13289,6 @@ func (c *ClientWithResponses) CoreGetV6EventWithResponse(ctx context.Context, ev
 	return ParseCoreGetV6EventResponse(rsp)
 }
 
-// DomainsListDomainsWithResponse performs a GET /domains (the `DomainsListDomains` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) DomainsListDomainsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DomainsListDomainsResponse, error) {
-	rsp, err := c.DomainsListDomains(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDomainsListDomainsResponse(rsp)
-}
-
-// DomainsCreateDomainsWithBodyWithResponse performs a POST /domains (the `DomainsCreateDomains` operationId) request,
-// with any type of body and a specified content type.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) DomainsCreateDomainsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DomainsCreateDomainsResponse, error) {
-	rsp, err := c.DomainsCreateDomainsWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDomainsCreateDomainsResponse(rsp)
-}
-
-// DomainsCreateDomainsWithResponse performs a POST /domains (the `DomainsCreateDomains` operationId) request.
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) DomainsCreateDomainsWithResponse(ctx context.Context, body DomainsCreateDomainsJSONRequestBody, reqEditors ...RequestEditorFn) (*DomainsCreateDomainsResponse, error) {
-	rsp, err := c.DomainsCreateDomains(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDomainsCreateDomainsResponse(rsp)
-}
-
-// DomainsDeleteDomainWithResponse performs a DELETE /domains/{domainId} (the `DomainsDeleteDomain` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) DomainsDeleteDomainWithResponse(ctx context.Context, domainId string, reqEditors ...RequestEditorFn) (*DomainsDeleteDomainResponse, error) {
-	rsp, err := c.DomainsDeleteDomain(ctx, domainId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDomainsDeleteDomainResponse(rsp)
-}
-
-// DomainsGetDomainWithResponse performs a GET /domains/{domainId} (the `DomainsGetDomain` operationId) request.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) DomainsGetDomainWithResponse(ctx context.Context, domainId string, params *DomainsGetDomainParams, reqEditors ...RequestEditorFn) (*DomainsGetDomainResponse, error) {
-	rsp, err := c.DomainsGetDomain(ctx, domainId, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDomainsGetDomainResponse(rsp)
-}
-
 // DriveGetUrlWithResponse performs a GET /drive/urls/{token} (the `DriveGetUrl` operationId) request.
 //
 // Returns a wrapper object for the known response body format(s).
@@ -14797,28 +13663,6 @@ func (c *ClientWithResponses) DriveCreateV2UrlsBookmarkWithResponse(ctx context.
 	return ParseDriveCreateV2UrlsBookmarkResponse(rsp)
 }
 
-// MetricsCreateMetricsWithBodyWithResponse performs a POST /metrics (the `MetricsCreateMetrics` operationId) request,
-// with any type of body and a specified content type.
-//
-// Returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) MetricsCreateMetricsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MetricsCreateMetricsResponse, error) {
-	rsp, err := c.MetricsCreateMetricsWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseMetricsCreateMetricsResponse(rsp)
-}
-
-// MetricsCreateMetricsWithResponse performs a POST /metrics (the `MetricsCreateMetrics` operationId) request.
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-func (c *ClientWithResponses) MetricsCreateMetricsWithResponse(ctx context.Context, body MetricsCreateMetricsJSONRequestBody, reqEditors ...RequestEditorFn) (*MetricsCreateMetricsResponse, error) {
-	rsp, err := c.MetricsCreateMetrics(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseMetricsCreateMetricsResponse(rsp)
-}
-
 // PermissionsListV1MembersRolesWithResponse performs a GET /permissions/v1/members/{memberId}/roles (the `PermissionsListV1MembersRoles` operationId) request.
 //
 // Returns a wrapper object for the known response body format(s).
@@ -14850,66 +13694,6 @@ func (c *ClientWithResponses) PermissionsUpdateV1MembersRolesWithResponse(ctx co
 		return nil, err
 	}
 	return ParsePermissionsUpdateV1MembersRolesResponse(rsp)
-}
-
-// ParseAuthDeleteV4Response parses an HTTP response from a AuthDeleteV4WithResponse call
-func ParseAuthDeleteV4Response(rsp *http.Response) (*AuthDeleteV4Response, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &AuthDeleteV4Response{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseAuthCreateV4Response parses an HTTP response from a AuthCreateV4WithResponse call
-func ParseAuthCreateV4Response(rsp *http.Response) (*AuthCreateV4Response, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &AuthCreateV4Response{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseCalendarListV1Response parses an HTTP response from a CalendarListV1WithResponse call
-func ParseCalendarListV1Response(rsp *http.Response) (*CalendarListV1Response, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CalendarListV1Response{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Calendars *[]interface{} `json:"Calendars,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
 }
 
 // ParseCalendarGetV1BookingExternalResponse parses an HTTP response from a CalendarGetV1BookingExternalWithResponse call
@@ -15171,62 +13955,6 @@ func ParseCalendarUpdateV1UrlResponse(rsp *http.Response) (*CalendarUpdateV1UrlR
 	response := &CalendarUpdateV1UrlResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseContactsListV4Response parses an HTTP response from a ContactsListV4WithResponse call
-func ParseContactsListV4Response(rsp *http.Response) (*ContactsListV4Response, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ContactsListV4Response{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Total *int `json:"Total,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseContactsCreateV4Response parses an HTTP response from a ContactsCreateV4WithResponse call
-func ParseContactsCreateV4Response(rsp *http.Response) (*ContactsCreateV4Response, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ContactsCreateV4Response{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			Responses *[]interface{} `json:"Responses,omitempty"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	}
 
 	return response, nil
@@ -16466,70 +15194,6 @@ func ParseCoreGetV6EventResponse(rsp *http.Response) (*CoreGetV6EventResponse, e
 	return response, nil
 }
 
-// ParseDomainsListDomainsResponse parses an HTTP response from a DomainsListDomainsWithResponse call
-func ParseDomainsListDomainsResponse(rsp *http.Response) (*DomainsListDomainsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DomainsListDomainsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseDomainsCreateDomainsResponse parses an HTTP response from a DomainsCreateDomainsWithResponse call
-func ParseDomainsCreateDomainsResponse(rsp *http.Response) (*DomainsCreateDomainsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DomainsCreateDomainsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseDomainsDeleteDomainResponse parses an HTTP response from a DomainsDeleteDomainWithResponse call
-func ParseDomainsDeleteDomainResponse(rsp *http.Response) (*DomainsDeleteDomainResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DomainsDeleteDomainResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseDomainsGetDomainResponse parses an HTTP response from a DomainsGetDomainWithResponse call
-func ParseDomainsGetDomainResponse(rsp *http.Response) (*DomainsGetDomainResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DomainsGetDomainResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
 // ParseDriveGetUrlResponse parses an HTTP response from a DriveGetUrlWithResponse call
 func ParseDriveGetUrlResponse(rsp *http.Response) (*DriveGetUrlResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -17294,22 +15958,6 @@ func ParseDriveCreateV2UrlsBookmarkResponse(rsp *http.Response) (*DriveCreateV2U
 		}
 		response.JSON200 = &dest
 
-	}
-
-	return response, nil
-}
-
-// ParseMetricsCreateMetricsResponse parses an HTTP response from a MetricsCreateMetricsWithResponse call
-func ParseMetricsCreateMetricsResponse(rsp *http.Response) (*MetricsCreateMetricsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &MetricsCreateMetricsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
 	}
 
 	return response, nil
